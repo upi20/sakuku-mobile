@@ -81,39 +81,9 @@ class _HistoryBody extends StatelessWidget {
       },
       child: CustomScrollView(
         slivers: [
-          // Month navigation bar
+          // Navigation bar (changes based on view mode)
           SliverToBoxAdapter(
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left,
-                        color: AppColors.darkBlue),
-                    onPressed: () => context
-                        .read<HistoryBloc>()
-                        .add(HistoryChangeMonth(-1)),
-                  ),
-                  Text(
-                    state.displayMonth,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.chevron_right,
-                        color: AppColors.darkBlue),
-                    onPressed: () => context
-                        .read<HistoryBloc>()
-                        .add(HistoryChangeMonth(1)),
-                  ),
-                ],
-              ),
-            ),
+            child: _buildNavBar(context, state),
           ),
           // Summary card
           SliverToBoxAdapter(
@@ -162,6 +132,93 @@ class _HistoryBody extends StatelessWidget {
                 childCount: state.rows.length,
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavBar(BuildContext context, HistoryLoaded state) {
+    switch (state.viewMode) {
+      case HistoryViewMode.monthly:
+        return _NavRow(
+          label: state.displayLabel,
+          onPrev: () =>
+              context.read<HistoryBloc>().add(HistoryChangeMonth(-1)),
+          onNext: () =>
+              context.read<HistoryBloc>().add(HistoryChangeMonth(1)),
+        );
+      case HistoryViewMode.yearly:
+        return _NavRow(
+          label: state.displayLabel,
+          onPrev: () =>
+              context.read<HistoryBloc>().add(HistoryChangeYear(-1)),
+          onNext: () =>
+              context.read<HistoryBloc>().add(HistoryChangeYear(1)),
+        );
+      case HistoryViewMode.daily:
+        return _NavRow(
+          label: state.displayLabel,
+          onPrev: () =>
+              context.read<HistoryBloc>().add(HistoryChangeDay(-1)),
+          onNext: () =>
+              context.read<HistoryBloc>().add(HistoryChangeDay(1)),
+        );
+      case HistoryViewMode.all:
+      case HistoryViewMode.custom:
+        return Container(
+          color: Colors.white,
+          width: double.infinity,
+          padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Text(
+            state.displayLabel,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkBlue,
+            ),
+          ),
+        );
+    }
+  }
+}
+
+class _NavRow extends StatelessWidget {
+  final String label;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+
+  const _NavRow({
+    required this.label,
+    required this.onPrev,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left, color: AppColors.darkBlue),
+            onPressed: onPrev,
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkBlue,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right, color: AppColors.darkBlue),
+            onPressed: onNext,
+          ),
         ],
       ),
     );

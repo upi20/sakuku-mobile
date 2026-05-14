@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/utils/date_formatter.dart';
+import '../../../shared/utils/thousands_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
 import '../bloc/add_history_bloc.dart';
 import '../bloc/history_bloc.dart';
@@ -111,7 +112,8 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
         _SaveButton(
           onPressed: () {
             context.read<AddHistoryBloc>()
-              ..add(AddHistoryAmountChanged(_amountController.text))
+              ..add(AddHistoryAmountChanged(
+                  ThousandsInputFormatter.toRaw(_amountController.text)))
               ..add(AddHistoryNoteChanged(_noteController.text))
               ..add(AddHistorySubmit());
           },
@@ -316,26 +318,42 @@ class _AmountField extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            maxLength: 19,
-            decoration: InputDecoration(
-              hintText: '0',
-              counterText: '',
-              filled: true,
-              fillColor: AppColors.background,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Rp',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkBlue,
+                  fontSize: 16,
+                ),
               ),
-            ),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
-              fontSize: 16,
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [ThousandsInputFormatter()],
+                  maxLength: 19,
+                  decoration: InputDecoration(
+                    hintText: '0',
+                    counterText: '',
+                    filled: true,
+                    fillColor: AppColors.background,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkBlue,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

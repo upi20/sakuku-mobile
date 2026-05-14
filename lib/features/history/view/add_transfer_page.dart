@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/models/account_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/date_formatter.dart';
+import '../../../shared/utils/thousands_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
 import '../bloc/history_bloc.dart';
 import '../bloc/transfer_bloc.dart';
@@ -122,8 +123,10 @@ class _AddTransferPageState extends State<AddTransferPage> {
             child: ElevatedButton(
               onPressed: () {
                 context.read<TransferBloc>()
-                  ..add(TransferAmountChanged(_amountController.text))
-                  ..add(TransferFeeChanged(_feeController.text))
+                  ..add(TransferAmountChanged(
+                      ThousandsInputFormatter.toRaw(_amountController.text)))
+                  ..add(TransferFeeChanged(
+                      ThousandsInputFormatter.toRaw(_feeController.text)))
                   ..add(TransferSubmit());
               },
               style: ElevatedButton.styleFrom(
@@ -289,28 +292,46 @@ class _InputCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          TextField(
-            controller: controller,
-            keyboardType:
-                isNumeric ? TextInputType.number : TextInputType.text,
-            inputFormatters:
-                isNumeric ? [FilteringTextInputFormatter.digitsOnly] : [],
-            maxLength: 19,
-            decoration: InputDecoration(
-              hintText: hint,
-              counterText: '',
-              filled: true,
-              fillColor: AppColors.background,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (isNumeric) ...([
+                const Text(
+                  'Rp',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkBlue,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ]),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType:
+                      isNumeric ? TextInputType.number : TextInputType.text,
+                  inputFormatters:
+                      isNumeric ? [ThousandsInputFormatter()] : [],
+                  maxLength: 19,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    counterText: '',
+                    filled: true,
+                    fillColor: AppColors.background,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkBlue,
+                    fontSize: 16,
+                  ),
+                ),
               ),
-            ),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
-              fontSize: 16,
-            ),
+            ],
           ),
         ],
       ),
