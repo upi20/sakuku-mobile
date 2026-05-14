@@ -5,26 +5,39 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/category_model.dart';
+import '../../../core/repositories/interfaces/i_history_repository.dart';
 import '../../../shared/utils/date_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
 import '../bloc/add_history_bloc.dart';
 import '../bloc/history_bloc.dart';
 
-class AddHistoryPage extends StatefulWidget {
-  const AddHistoryPage({super.key});
+class EditHistoryPage extends StatefulWidget {
+  final int historyId;
+  const EditHistoryPage({super.key, required this.historyId});
 
   @override
-  State<AddHistoryPage> createState() => _AddHistoryPageState();
+  State<EditHistoryPage> createState() => _EditHistoryPageState();
 }
 
-class _AddHistoryPageState extends State<AddHistoryPage> {
+class _EditHistoryPageState extends State<EditHistoryPage> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    context.read<AddHistoryBloc>().add(AddHistoryInit(initialSign: '-'));
+    _loadAndInit();
+  }
+
+  Future<void> _loadAndInit() async {
+    final repo = context.read<IHistoryRepository>();
+    final item = await repo.getById(widget.historyId);
+    if (item == null || !mounted) return;
+    _amountController.text = item.amount.toStringAsFixed(0);
+    _noteController.text = item.note;
+    context.read<AddHistoryBloc>().add(AddHistoryEditInit(item));
+    setState(() => _initialized = true);
   }
 
   @override
@@ -51,11 +64,11 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
           backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: AppColors.primary,
-            title: const Text('Tambah Transaksi',
+            title: const Text('Edit Transaksi',
                 style: TextStyle(color: Colors.white)),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
-          body: state is AddHistoryReady
+          body: state is AddHistoryReady && _initialized
               ? _buildForm(context, state)
               : const Center(child: CircularProgressIndicator()),
         );
@@ -70,9 +83,7 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Income/Expense toggle
                 _TypeToggle(sign: state.sign),
-                // Category
                 _PickerCard(
                   label: 'KATEGORI',
                   hint: 'Pilih Kategori',
@@ -83,7 +94,6 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
                       : Colors.grey,
                   onTap: () => _pickCategory(context, state),
                 ),
-                // Account
                 _PickerCard(
                   label: 'REKENING',
                   hint: 'Pilih Rekening',
@@ -94,20 +104,16 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
                       : Colors.grey,
                   onTap: () => _pickAccount(context, state),
                 ),
-                // Amount
                 _AmountField(controller: _amountController),
                 const SizedBox(height: 8),
-                // Note
                 _NoteField(controller: _noteController),
                 const SizedBox(height: 8),
-                // Date + Time
                 _DateTimeCard(date: state.date, time: state.time),
                 const SizedBox(height: 80),
               ],
             ),
           ),
         ),
-        // Save button
         _SaveButton(
           onPressed: () {
             context.read<AddHistoryBloc>()
@@ -143,7 +149,7 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
   }
 }
 
-// ------- Sub-widgets -------
+// ------- Reusable form sub-widgets -------
 
 class _TypeToggle extends StatelessWidget {
   final String sign;
@@ -282,8 +288,10 @@ class _PickerCard extends StatelessWidget {
                   ),
                   if (iconName != null)
                     ColoredIcon(
-                        iconName: iconName!, backgroundColor: iconColor,
-                        size: 36, iconSize: 20),
+                        iconName: iconName!,
+                        backgroundColor: iconColor,
+                        size: 36,
+                        iconSize: 20),
                 ],
               ),
             ),
@@ -484,8 +492,6 @@ class _SaveButton extends StatelessWidget {
   }
 }
 
-// ------- Picker bottom sheets -------
-
 class _CategoryPicker extends StatelessWidget {
   final List<CategoryModel> categories;
   const _CategoryPicker({required this.categories});
@@ -512,8 +518,10 @@ class _CategoryPicker extends StatelessWidget {
               final bg = ColoredIcon.parseColor(cat.color);
               return ListTile(
                 leading: ColoredIcon(
-                    iconName: cat.icon, backgroundColor: bg,
-                    size: 40, iconSize: 22),
+                    iconName: cat.icon,
+                    backgroundColor: bg,
+                    size: 40,
+                    iconSize: 22),
                 title: Text(cat.name,
                     style: const TextStyle(color: AppColors.darkBlue)),
                 onTap: () => Navigator.of(context).pop(cat),
@@ -553,8 +561,10 @@ class _AccountPicker extends StatelessWidget {
               final bg = ColoredIcon.parseColor(acc.color);
               return ListTile(
                 leading: ColoredIcon(
-                    iconName: acc.icon, backgroundColor: bg,
-                    size: 40, iconSize: 22),
+                    iconName: acc.icon,
+                    backgroundColor: bg,
+                    size: 40,
+                    iconSize: 22),
                 title: Text(acc.name,
                     style: const TextStyle(color: AppColors.darkBlue)),
                 onTap: () => Navigator.of(context).pop(acc),
@@ -567,4 +577,3 @@ class _AccountPicker extends StatelessWidget {
     );
   }
 }
-

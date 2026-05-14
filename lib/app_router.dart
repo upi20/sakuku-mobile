@@ -6,8 +6,13 @@ import 'features/splash/splash_page.dart';
 import 'features/main/main_page.dart';
 import 'features/pin/view/check_pin_page.dart';
 import 'features/history/view/history_page.dart';
+import 'features/history/view/history_detail_page.dart';
 import 'features/history/view/add_history_page.dart';
+import 'features/history/view/edit_history_page.dart';
 import 'features/history/view/add_transfer_page.dart';
+import 'features/history/view/transfer_detail_page.dart';
+import 'features/history/view/filter_history_page.dart';
+import 'features/history/view/search_history_page.dart';
 import 'features/report/view/report_page.dart';
 import 'features/debt/view/debt_page.dart';
 import 'features/debt/view/add_debt_page.dart';
@@ -71,10 +76,49 @@ final appRouter = GoRouter(
       builder: (_, __) => const AddHistoryPage(),
     ),
     GoRoute(
+      path: '/history/search',
+      name: 'history-search',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, __) => const SearchHistoryPage(),
+    ),
+    GoRoute(
+      path: '/history/filter',
+      name: 'history-filter',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, __) => const FilterHistoryPage(),
+    ),
+    GoRoute(
       path: '/history/transfer/add',
       name: 'transfer-add',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (_, __) => const AddTransferPage(),
+    ),
+    GoRoute(
+      path: '/history/transfer/:transferId',
+      name: 'transfer-detail',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['transferId']!);
+        return TransferDetailPage(transferId: id);
+      },
+    ),
+    GoRoute(
+      path: '/history/:historyId',
+      name: 'history-detail',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['historyId']!);
+        return HistoryDetailPage(historyId: id);
+      },
+    ),
+    GoRoute(
+      path: '/history/:historyId/edit',
+      name: 'history-edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['historyId']!);
+        return EditHistoryPage(historyId: id);
+      },
     ),
     GoRoute(
       path: '/debt/add',
