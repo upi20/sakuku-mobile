@@ -84,7 +84,6 @@ class DompetKuApp extends StatelessWidget {
               elevation: 0,
               centerTitle: false,
               titleTextStyle: TextStyle(
-                color: AppColors.darkBlue,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),

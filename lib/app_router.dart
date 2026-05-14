@@ -21,6 +21,9 @@ import 'features/settings/view/settings_page.dart';
 import 'features/account/view/account_page.dart';
 import 'features/account/view/add_account_page.dart';
 import 'features/account/view/edit_account_page.dart';
+import 'features/category/view/category_page.dart';
+import 'features/category/view/add_category_page.dart';
+import 'features/category/view/edit_category_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -165,6 +168,32 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final id = int.parse(state.pathParameters['accountId']!);
         return EditAccountPage(accountId: id);
+      },
+    ),
+
+    // ── Category routes ──────────────────────────────────────────
+    GoRoute(
+      path: '/settings/category',
+      name: 'category',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const CategoryPage(),
+    ),
+    GoRoute(
+      path: '/settings/category/add',
+      name: 'category-add',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final sign = state.extra as String? ?? '+';
+        return AddCategoryPage(initialSign: sign);
+      },
+    ),
+    GoRoute(
+      path: '/settings/category/:categoryId/edit',
+      name: 'category-edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['categoryId']!);
+        return EditCategoryPage(categoryId: id);
       },
     ),
   ],

@@ -25,7 +25,7 @@ class SettingsPage extends StatelessWidget {
           _SettingsItem(
             icon: Icons.category_outlined,
             label: 'Kategori',
-            onTap: null, // Phase 5
+            onTap: () => context.push('/settings/category'),
           ),
           const SizedBox(height: 8),
           _SettingsItem(
