@@ -5,6 +5,8 @@ import 'core/utils/pin_service.dart';
 import 'features/splash/splash_page.dart';
 import 'features/main/main_page.dart';
 import 'features/pin/view/check_pin_page.dart';
+import 'features/pin/view/set_pin_page.dart';
+import 'features/pin/view/config_pin_page.dart';
 import 'features/history/view/history_page.dart';
 import 'features/history/view/history_detail_page.dart';
 import 'features/history/view/add_history_page.dart';
@@ -53,6 +55,25 @@ final appRouter = GoRouter(
       name: 'pin-check',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (_, _) => const CheckPinPage(),
+    ),
+
+    // ── PIN Set (buat baru / ganti) ──────────────────────────────
+    GoRoute(
+      path: '/pin/set',
+      name: 'pin-set',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final isChange = state.uri.queryParameters['change'] == '1';
+        return SetPinPage(isChange: isChange);
+      },
+    ),
+
+    // ── PIN Config (dari Settings) ───────────────────────────────
+    GoRoute(
+      path: '/settings/pin',
+      name: 'settings-pin',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const ConfigPinPage(),
     ),
 
     // ── Main Shell (bottom nav) ──────────────────────────────────
@@ -300,11 +321,14 @@ final appRouter = GoRouter(
   redirect: (context, state) async {
     final location = state.matchedLocation;
 
-    // Never redirect on splash or pin pages
-    if (location == '/splash' || location == '/pin/check') return null;
+    // Jangan redirect di halaman splash atau halaman PIN itu sendiri
+    if (location == '/splash' || location.startsWith('/pin')) return null;
 
     final pinEnabled = await PinService.instance.isPinEnabled();
-    if (pinEnabled) return '/pin/check';
+    // Redirect ke check PIN hanya jika PIN aktif DAN session belum dibuka
+    if (pinEnabled && !PinService.instance.isSessionUnlocked) {
+      return '/pin/check';
+    }
 
     return null;
   },

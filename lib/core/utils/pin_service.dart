@@ -7,6 +7,15 @@ class PinService {
   PinService._();
   static final PinService instance = PinService._();
 
+  // In-memory session flag: true setelah user berhasil input PIN yang benar
+  bool _sessionUnlocked = false;
+
+  bool get isSessionUnlocked => _sessionUnlocked;
+
+  void unlockSession() => _sessionUnlocked = true;
+
+  void lockSession() => _sessionUnlocked = false;
+
   Future<bool> isPinEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyPinEnabled) ?? false;

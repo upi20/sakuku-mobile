@@ -31,7 +31,7 @@ class SettingsPage extends StatelessWidget {
           _SettingsItem(
             icon: Icons.pin_outlined,
             label: 'PIN',
-            onTap: null, // Phase 6
+            onTap: () => context.push('/settings/pin'),
           ),
           _SettingsItem(
             icon: Icons.upload_file_outlined,
