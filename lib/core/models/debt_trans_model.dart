@@ -48,4 +48,28 @@ class DebtTransModel {
       'debt_trans_type': type,
     };
   }
+
+  DebtTransModel copyWith({
+    int? id,
+    int? debtId,
+    int? accountId,
+    double? amount,
+    String? note,
+    String? dateTime,
+    int? type,
+    String? accountName,
+    String? debtName,
+  }) {
+    return DebtTransModel(
+      id: id ?? this.id,
+      debtId: debtId ?? this.debtId,
+      accountId: accountId ?? this.accountId,
+      amount: amount ?? this.amount,
+      note: note ?? this.note,
+      dateTime: dateTime ?? this.dateTime,
+      type: type ?? this.type,
+      accountName: accountName ?? this.accountName,
+      debtName: debtName ?? this.debtName,
+    );
+  }
 }

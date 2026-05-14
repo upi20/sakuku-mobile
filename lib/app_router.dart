@@ -17,6 +17,12 @@ import 'features/history/view/search_history_page.dart';
 import 'features/report/view/report_page.dart';
 import 'features/debt/view/debt_page.dart';
 import 'features/debt/view/add_debt_page.dart';
+import 'features/debt/view/edit_debt_page.dart';
+import 'features/debt/view/debt_list_page.dart';
+import 'features/debt/view/debt_detail_page.dart';
+import 'features/debt/view/add_debt_trans_page.dart';
+import 'features/debt/view/edit_debt_trans_page.dart';
+import 'features/debt/view/debt_trans_detail_page.dart';
 import 'features/settings/view/settings_page.dart';
 import 'features/account/view/account_page.dart';
 import 'features/account/view/add_account_page.dart';
@@ -145,6 +151,65 @@ final appRouter = GoRouter(
           state.uri.queryParameters['type'] ?? '1',
         );
         return AddDebtPage(debtType: type);
+      },
+    ),
+    GoRoute(
+      path: '/debt/hutang',
+      name: 'debt-hutang',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const DebtListPage(type: 1),
+    ),
+    GoRoute(
+      path: '/debt/piutang',
+      name: 'debt-piutang',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const DebtListPage(type: 2),
+    ),
+    GoRoute(
+      path: '/debt/:debtId/detail',
+      name: 'debt-detail',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['debtId']!);
+        return DebtDetailPage(debtId: id);
+      },
+    ),
+    GoRoute(
+      path: '/debt/:debtId/edit',
+      name: 'debt-edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['debtId']!);
+        return EditDebtPage(debtId: id);
+      },
+    ),
+    GoRoute(
+      path: '/debt/:debtId/trans/add',
+      name: 'debt-trans-add',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['debtId']!);
+        return AddDebtTransPage(debtId: id);
+      },
+    ),
+    GoRoute(
+      path: '/debt/:debtId/trans/:transId/detail',
+      name: 'debt-trans-detail',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final debtId = int.parse(state.pathParameters['debtId']!);
+        final transId = int.parse(state.pathParameters['transId']!);
+        return DebtTransDetailPage(debtId: debtId, transId: transId);
+      },
+    ),
+    GoRoute(
+      path: '/debt/:debtId/trans/:transId/edit',
+      name: 'debt-trans-edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final debtId = int.parse(state.pathParameters['debtId']!);
+        final transId = int.parse(state.pathParameters['transId']!);
+        return EditDebtTransPage(debtId: debtId, transId: transId);
       },
     ),
 

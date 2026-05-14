@@ -5,7 +5,7 @@ import '../../models/debt_model.dart';
 class DebtDao {
   final _db = AppDatabase.instance;
 
-  static const String _joinQuery = '''
+  static const String _innerQuery = '''
     SELECT d.*,
       a.account_name, a.account_icon, a.account_color,
       COALESCE(
@@ -16,29 +16,32 @@ class DebtDao {
     LEFT JOIN Account a ON d.debt_account_id = a.account_id
   ''';
 
+  static const String _joinQuery = _innerQuery;
+
   Future<List<DebtModel>> getAll({int? type, bool? isRelief}) async {
     final db = await _db.database;
-    final conditions = <String>[];
+    final innerConditions = <String>[];
     final args = <dynamic>[];
 
     if (type != null) {
-      conditions.add('d.debt_type = ?');
+      innerConditions.add('d.debt_type = ?');
       args.add(type);
     }
 
-    String having = '';
-    if (isRelief == true) {
-      having = 'HAVING paid_amount >= d.debt_amount';
-    } else if (isRelief == false) {
-      having = 'HAVING paid_amount < d.debt_amount';
-    }
-
-    final where = conditions.isNotEmpty
-        ? 'WHERE ${conditions.join(' AND ')}'
+    final innerWhere = innerConditions.isNotEmpty
+        ? 'WHERE ${innerConditions.join(' AND ')}'
         : '';
 
+    String outerWhere = '';
+    if (isRelief == true) {
+      outerWhere = 'WHERE paid_amount >= debt_amount';
+    } else if (isRelief == false) {
+      outerWhere = 'WHERE paid_amount < debt_amount';
+    }
+
     final maps = await db.rawQuery(
-      '$_joinQuery $where $having ORDER BY d.debt_start_date_time DESC',
+      '''SELECT * FROM ($_innerQuery $innerWhere) $outerWhere
+         ORDER BY debt_start_date_time DESC''',
       args,
     );
     return maps.map(DebtModel.fromMap).toList();
