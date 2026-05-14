@@ -55,9 +55,16 @@ class DebtRepository implements IDebtRepository {
 
   @override
   Future<int> updateDebt(DebtModel debt) async {
-    // Hapus history awal debt lama (bukan dari trans), lalu update, lalu insert baru
-    await _historyDao.deleteByDebtIdExcludingTrans(debt.id!);
+    // Hapus SEMUA history terkait debt ini (termasuk dari trans)
+    // agar jika type berubah hutang↔piutang semua sign & category ter-rebuild
+    await _historyDao.deleteByDebtId(debt.id!);
+
+    // Ambil semua trans sebelum update (karena kita perlu rebuild historynya)
+    final existingTrans = await _transDao.getByDebtId(debt.id!);
+
     await _debtDao.update(debt);
+
+    // Re-insert history awal debt
     final categoryId = debt.type == 1 ? 4 : 6;
     final sign = debt.type == 1 ? '+' : '-';
     final dateOnly = debt.startDateTime.length >= 10
@@ -80,6 +87,38 @@ class DebtRepository implements IDebtRepository {
       debtId: debt.id!,
       debtTransId: 0,
     ));
+
+    // Re-insert history untuk setiap trans yang sudah ada, pakai type debt baru
+    for (final t in existingTrans) {
+      final int transCatId;
+      final String transSign;
+      if (debt.type == 1) {
+        // hutang: pembayaran(1)→cat=7,'-' | penambahan(2)→cat=9,'+'
+        if (t.type == 1) { transCatId = 7; transSign = '-'; }
+        else { transCatId = 9; transSign = '+'; }
+      } else {
+        // piutang: pembayaran(1)→cat=5,'+' | penambahan(2)→cat=10,'-'
+        if (t.type == 1) { transCatId = 5; transSign = '+'; }
+        else { transCatId = 10; transSign = '-'; }
+      }
+      final tDateOnly = t.dateTime.length >= 10 ? t.dateTime.substring(0, 10) : t.dateTime;
+      final tTimeOnly = t.dateTime.length >= 16 ? t.dateTime.substring(11, 16) : '00:00';
+      await _historyDao.insert(HistoryModel(
+        categoryId: transCatId,
+        accountId: t.accountId,
+        transferId: 0,
+        type: 5,
+        amount: t.amount,
+        date: tDateOnly,
+        time: tTimeOnly,
+        dateTime: t.dateTime,
+        note: t.note,
+        sign: transSign,
+        debtId: debt.id!,
+        debtTransId: t.id!,
+      ));
+    }
+
     return debt.id!;
   }
 
