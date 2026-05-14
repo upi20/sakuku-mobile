@@ -137,6 +137,21 @@ class HistoryDao {
     return db.delete('History', where: 'history_id = ?', whereArgs: [id]);
   }
 
+  Future<HistoryModel?> getFeeByTransferId(int transferId) async {
+    final db = await _db.database;
+    final maps = await db.rawQuery(
+      '$_joinQuery WHERE h.history_transfer_id = ? AND h.history_type = 4 LIMIT 1',
+      [transferId],
+    );
+    return maps.isNotEmpty ? HistoryModel.fromMap(maps.first) : null;
+  }
+
+  Future<int> deleteByTransferId(int transferId) async {
+    final db = await _db.database;
+    return db.delete('History',
+        where: 'history_transfer_id = ?', whereArgs: [transferId]);
+  }
+
   Future<List<Map<String, dynamic>>> getReportByCategory({
     required String startDate,
     required String endDate,

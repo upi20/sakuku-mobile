@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/database/daos/history_dao.dart';
 import '../../../core/database/daos/history_transfer_dao.dart';
+import '../../../core/models/history_model.dart';
 import '../../../core/models/history_transfer_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/date_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
+import '../bloc/history_bloc.dart';
+import '../bloc/transfer_bloc.dart';
 
 class TransferDetailPage extends StatefulWidget {
   final int transferId;
@@ -16,6 +23,7 @@ class TransferDetailPage extends StatefulWidget {
 
 class _TransferDetailPageState extends State<TransferDetailPage> {
   HistoryTransferModel? _transfer;
+  HistoryModel? _fee;
   bool _loading = true;
   String? _error;
 
@@ -27,11 +35,12 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
 
   Future<void> _load() async {
     try {
-      final dao = HistoryTransferDao();
-      final transfer = await dao.getById(widget.transferId);
+      final transfer = await HistoryTransferDao().getById(widget.transferId);
+      final fee = await HistoryDao().getFeeByTransferId(widget.transferId);
       if (mounted) {
         setState(() {
           _transfer = transfer;
+          _fee = fee;
           _loading = false;
         });
       }
@@ -40,17 +49,57 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
     }
   }
 
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => ConfirmDialog(
+        title: 'Hapus Transfer',
+        message: 'Hapus transfer ini? Semua catatan terkait akan dihapus.',
+        onConfirm: () {
+          context.read<TransferBloc>().add(
+              TransferDeleteRequested(widget.transferId));
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text('Detail Transfer',
-            style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+    return BlocListener<TransferBloc, TransferState>(
+      listener: (context, state) {
+        if (state is TransferDeleteSuccess) {
+          context.read<HistoryBloc>().add(HistoryRefresh());
+          context.pop();
+        } else if (state is TransferError) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          title: const Text('Detail Transfer',
+              style: TextStyle(color: Colors.white)),
+          iconTheme: const IconThemeData(color: Colors.white),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.white),
+              onPressed: _transfer == null
+                  ? null
+                  : () => context.push(
+                      '/history/transfer/${widget.transferId}/edit'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.white),
+              onPressed: _transfer == null
+                  ? null
+                  : () => _confirmDelete(context),
+            ),
+          ],
+        ),
+        body: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 
@@ -142,6 +191,62 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
               ],
             ),
           ),
+          // Fee card (if any)
+          if (_fee != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 4)
+                ],
+              ),
+              child: Row(
+                children: [
+                  ColoredIcon(
+                    iconName: 'ic_transfer',
+                    backgroundColor: ColoredIcon.parseColor('#9e9e9e'),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'BIAYA TRANSFER',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkGray,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _fee!.accountName ?? '-',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkBlue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    CurrencyFormatter.format(_fee!.amount),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.expense,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

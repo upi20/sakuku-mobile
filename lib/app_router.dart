@@ -10,6 +10,7 @@ import 'features/history/view/history_detail_page.dart';
 import 'features/history/view/add_history_page.dart';
 import 'features/history/view/edit_history_page.dart';
 import 'features/history/view/add_transfer_page.dart';
+import 'features/history/view/edit_transfer_page.dart';
 import 'features/history/view/transfer_detail_page.dart';
 import 'features/history/view/filter_history_page.dart';
 import 'features/history/view/search_history_page.dart';
@@ -29,7 +30,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       name: 'splash',
-      builder: (_, __) => const SplashPage(),
+      builder: (_, _) => const SplashPage(),
     ),
 
     // ── PIN Check ───────────────────────────────────────────────
@@ -37,7 +38,7 @@ final appRouter = GoRouter(
       path: '/pin/check',
       name: 'pin-check',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (_, __) => const CheckPinPage(),
+      builder: (_, _) => const CheckPinPage(),
     ),
 
     // ── Main Shell (bottom nav) ──────────────────────────────────
@@ -48,22 +49,22 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/history',
           name: 'history',
-          builder: (_, __) => const HistoryPage(),
+          builder: (_, _) => const HistoryPage(),
         ),
         GoRoute(
           path: '/report',
           name: 'report',
-          builder: (_, __) => const ReportPage(),
+          builder: (_, _) => const ReportPage(),
         ),
         GoRoute(
           path: '/debt',
           name: 'debt',
-          builder: (_, __) => const DebtPage(),
+          builder: (_, _) => const DebtPage(),
         ),
         GoRoute(
           path: '/settings',
           name: 'settings',
-          builder: (_, __) => const SettingsPage(),
+          builder: (_, _) => const SettingsPage(),
         ),
       ],
     ),
@@ -73,25 +74,25 @@ final appRouter = GoRouter(
       path: '/history/add',
       name: 'history-add',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (_, __) => const AddHistoryPage(),
+      builder: (_, _) => const AddHistoryPage(),
     ),
     GoRoute(
       path: '/history/search',
       name: 'history-search',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (_, __) => const SearchHistoryPage(),
+      builder: (_, _) => const SearchHistoryPage(),
     ),
     GoRoute(
       path: '/history/filter',
       name: 'history-filter',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (_, __) => const FilterHistoryPage(),
+      builder: (_, _) => const FilterHistoryPage(),
     ),
     GoRoute(
       path: '/history/transfer/add',
       name: 'transfer-add',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (_, __) => const AddTransferPage(),
+      builder: (_, _) => const AddTransferPage(),
     ),
     GoRoute(
       path: '/history/transfer/:transferId',
@@ -100,6 +101,15 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final id = int.parse(state.pathParameters['transferId']!);
         return TransferDetailPage(transferId: id);
+      },
+    ),
+    GoRoute(
+      path: '/history/transfer/:transferId/edit',
+      name: 'transfer-edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['transferId']!);
+        return EditTransferPage(transferId: id);
       },
     ),
     GoRoute(

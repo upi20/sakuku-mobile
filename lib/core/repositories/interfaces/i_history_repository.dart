@@ -17,6 +17,8 @@ abstract class IHistoryRepository {
   Future<int> create(HistoryModel history);
   Future<int> update(HistoryModel history);
   Future<int> delete(int id);
+  Future<HistoryModel?> getFeeByTransferId(int transferId);
+  Future<int> deleteByTransferId(int transferId);
   Future<List<Map<String, dynamic>>> getReportByCategory({
     required String startDate,
     required String endDate,

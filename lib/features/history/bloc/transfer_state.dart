@@ -13,6 +13,7 @@ class TransferReady extends TransferState {
   final String feeText;
   final DateTime date;
   final TimeOfDay time;
+  final int? editingId;
 
   TransferReady({
     required this.accounts,
@@ -23,6 +24,7 @@ class TransferReady extends TransferState {
     required this.feeText,
     required this.date,
     required this.time,
+    this.editingId,
   });
 
   TransferReady copyWith({
@@ -34,6 +36,7 @@ class TransferReady extends TransferState {
     String? feeText,
     DateTime? date,
     TimeOfDay? time,
+    int? editingId,
   }) {
     return TransferReady(
       accounts: accounts ?? this.accounts,
@@ -44,6 +47,7 @@ class TransferReady extends TransferState {
       feeText: feeText ?? this.feeText,
       date: date ?? this.date,
       time: time ?? this.time,
+      editingId: editingId ?? this.editingId,
     );
   }
 }

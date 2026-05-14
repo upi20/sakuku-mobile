@@ -55,6 +55,14 @@ class HistoryRepository implements IHistoryRepository {
   Future<int> delete(int id) => _dao.delete(id);
 
   @override
+  Future<HistoryModel?> getFeeByTransferId(int transferId) =>
+      _dao.getFeeByTransferId(transferId);
+
+  @override
+  Future<int> deleteByTransferId(int transferId) =>
+      _dao.deleteByTransferId(transferId);
+
+  @override
   Future<List<Map<String, dynamic>>> getReportByCategory({
     required String startDate,
     required String endDate,

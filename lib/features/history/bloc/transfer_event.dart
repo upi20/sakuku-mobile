@@ -4,6 +4,11 @@ abstract class TransferEvent {}
 
 class TransferInit extends TransferEvent {}
 
+class TransferEditInit extends TransferEvent {
+  final int transferId;
+  TransferEditInit(this.transferId);
+}
+
 class TransferSrcAccountSelected extends TransferEvent {
   final AccountModel account;
   TransferSrcAccountSelected(this.account);
@@ -35,6 +40,8 @@ class TransferTimeChanged extends TransferEvent {
 }
 
 class TransferSubmit extends TransferEvent {}
+
+class TransferUpdate extends TransferEvent {}
 
 class TransferDeleteRequested extends TransferEvent {
   final int transferId;
