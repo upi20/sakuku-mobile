@@ -1,0 +1,104 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'core/utils/pin_service.dart';
+import 'features/splash/splash_page.dart';
+import 'features/main/main_page.dart';
+import 'features/pin/view/check_pin_page.dart';
+import 'features/history/view/history_page.dart';
+import 'features/history/view/add_history_page.dart';
+import 'features/history/view/add_transfer_page.dart';
+import 'features/report/view/report_page.dart';
+import 'features/debt/view/debt_page.dart';
+import 'features/debt/view/add_debt_page.dart';
+import 'features/settings/view/settings_page.dart';
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+final appRouter = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/splash',
+  routes: [
+    // ── Splash ──────────────────────────────────────────────────
+    GoRoute(
+      path: '/splash',
+      name: 'splash',
+      builder: (_, __) => const SplashPage(),
+    ),
+
+    // ── PIN Check ───────────────────────────────────────────────
+    GoRoute(
+      path: '/pin/check',
+      name: 'pin-check',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, __) => const CheckPinPage(),
+    ),
+
+    // ── Main Shell (bottom nav) ──────────────────────────────────
+    ShellRoute(
+      navigatorKey: _shellNavigatorKey,
+      builder: (context, state, child) => MainPage(child: child),
+      routes: [
+        GoRoute(
+          path: '/history',
+          name: 'history',
+          builder: (_, __) => const HistoryPage(),
+        ),
+        GoRoute(
+          path: '/report',
+          name: 'report',
+          builder: (_, __) => const ReportPage(),
+        ),
+        GoRoute(
+          path: '/debt',
+          name: 'debt',
+          builder: (_, __) => const DebtPage(),
+        ),
+        GoRoute(
+          path: '/settings',
+          name: 'settings',
+          builder: (_, __) => const SettingsPage(),
+        ),
+      ],
+    ),
+
+    // ── Full-screen routes (above nav) ───────────────────────────
+    GoRoute(
+      path: '/history/add',
+      name: 'history-add',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, __) => const AddHistoryPage(),
+    ),
+    GoRoute(
+      path: '/history/transfer/add',
+      name: 'transfer-add',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, __) => const AddTransferPage(),
+    ),
+    GoRoute(
+      path: '/debt/add',
+      name: 'debt-add',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final type = int.tryParse(
+          state.uri.queryParameters['type'] ?? '1',
+        );
+        return AddDebtPage(debtType: type);
+      },
+    ),
+  ],
+
+  // ── PIN guard ────────────────────────────────────────────────
+  redirect: (context, state) async {
+    final location = state.matchedLocation;
+
+    // Never redirect on splash or pin pages
+    if (location == '/splash' || location == '/pin/check') return null;
+
+    final pinEnabled = await PinService.instance.isPinEnabled();
+    if (pinEnabled) return '/pin/check';
+
+    return null;
+  },
+);
