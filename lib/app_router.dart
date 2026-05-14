@@ -37,6 +37,7 @@ import 'features/category/view/edit_category_page.dart';
 import 'features/settings/view/info_page.dart';
 import 'features/export/view/export_page.dart';
 import 'features/export/view/backup_restore_page.dart';
+import 'features/balancing/view/balancing_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -337,6 +338,12 @@ final appRouter = GoRouter(
       name: 'settings-backup',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (_, _) => const BackupRestorePage(),
+    ),
+    GoRoute(
+      path: '/settings/balancing',
+      name: 'settings-balancing',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const BalancingPage(),
     ),
   ],
 

@@ -45,6 +45,11 @@ class SettingsPage extends StatelessWidget {
             label: 'Kategori',
             onTap: () => context.push('/settings/category'),
           ),
+          _SettingsItem(
+            icon: Icons.balance,
+            label: 'Balancing',
+            onTap: () => context.push('/settings/balancing'),
+          ),
 
           // Keamanan
           _SectionHeader(label: 'Keamanan'),
