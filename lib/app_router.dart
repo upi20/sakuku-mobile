@@ -18,6 +18,9 @@ import 'features/report/view/report_page.dart';
 import 'features/debt/view/debt_page.dart';
 import 'features/debt/view/add_debt_page.dart';
 import 'features/settings/view/settings_page.dart';
+import 'features/account/view/account_page.dart';
+import 'features/account/view/add_account_page.dart';
+import 'features/account/view/edit_account_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -139,6 +142,29 @@ final appRouter = GoRouter(
           state.uri.queryParameters['type'] ?? '1',
         );
         return AddDebtPage(debtType: type);
+      },
+    ),
+
+    // ── Account routes ───────────────────────────────────────────
+    GoRoute(
+      path: '/settings/account',
+      name: 'account',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const AccountPage(),
+    ),
+    GoRoute(
+      path: '/settings/account/add',
+      name: 'account-add',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const AddAccountPage(),
+    ),
+    GoRoute(
+      path: '/settings/account/:accountId/edit',
+      name: 'account-edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['accountId']!);
+        return EditAccountPage(accountId: id);
       },
     ),
   ],
