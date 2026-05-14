@@ -16,6 +16,7 @@ import 'core/repositories/local/history_repository.dart';
 import 'features/history/bloc/add_history_bloc.dart';
 import 'features/history/bloc/history_bloc.dart';
 import 'features/history/bloc/transfer_bloc.dart';
+import 'features/report/bloc/report_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +62,9 @@ class DompetKuApp extends StatelessWidget {
               ctx.read<IHistoryRepository>(),
               ctx.read<HistoryTransferDao>(),
             ),
+          ),
+          BlocProvider<ReportBloc>(
+            create: (_) => ReportBloc(),
           ),
         ],
         child: MaterialApp.router(

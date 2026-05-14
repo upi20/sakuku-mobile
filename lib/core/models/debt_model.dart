@@ -14,7 +14,8 @@ class DebtModel {
   final String? accountColor;
 
   // Computed
-  final double? paidAmount;
+  final double? paidAmount;   // SUM of pembayaran (type=1) trans
+  final double? addedAmount;  // SUM of penambahan (type=2) trans
 
   const DebtModel({
     this.id,
@@ -29,12 +30,19 @@ class DebtModel {
     this.accountIcon,
     this.accountColor,
     this.paidAmount,
+    this.addedAmount,
   });
 
   bool get isDebt => type == 1;
   bool get isLoan => type == 2;
-  double get remainingAmount => amount - (paidAmount ?? 0);
-  bool get isRelief => remainingAmount <= 0;
+  // Total utang = pokok + penambahan
+  double get totalAmount => amount + (addedAmount ?? 0);
+  // Sisa = total - terbayar, minimal 0
+  double get remainingAmount {
+    final r = totalAmount - (paidAmount ?? 0);
+    return r < 0 ? 0 : r;
+  }
+  bool get isRelief => (paidAmount ?? 0) >= totalAmount;
 
   factory DebtModel.fromMap(Map<String, dynamic> map) {
     return DebtModel(
@@ -51,6 +59,9 @@ class DebtModel {
       accountColor: map['account_color'] as String?,
       paidAmount: map['paid_amount'] != null
           ? (map['paid_amount'] as num).toDouble()
+          : null,
+      addedAmount: map['added_amount'] != null
+          ? (map['added_amount'] as num).toDouble()
           : null,
     );
   }

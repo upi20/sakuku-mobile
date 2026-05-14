@@ -105,8 +105,8 @@ class HistoryDao {
     final db = await _db.database;
     final result = await db.rawQuery('''
       SELECT 
-        COALESCE(SUM(CASE WHEN history_sign = '+' AND history_type != 3 THEN history_amount ELSE 0 END), 0) as income,
-        COALESCE(SUM(CASE WHEN history_sign = '-' AND history_type != 3 THEN history_amount ELSE 0 END), 0) as expense
+        COALESCE(SUM(CASE WHEN history_sign = '+' AND history_category_id NOT IN (1,2) THEN history_amount ELSE 0 END), 0) as income,
+        COALESCE(SUM(CASE WHEN history_sign = '-' AND history_category_id NOT IN (1,2) THEN history_amount ELSE 0 END), 0) as expense
       FROM History
       WHERE history_date LIKE ?
     ''', ['$yearMonth%']);
@@ -114,6 +114,52 @@ class HistoryDao {
       'income': (result.first['income'] as num?)?.toDouble() ?? 0.0,
       'expense': (result.first['expense'] as num?)?.toDouble() ?? 0.0,
     };
+  }
+
+  Future<Map<String, double>> getSummaryByDateRange(
+      String startDate, String endDate) async {
+    final db = await _db.database;
+    final result = await db.rawQuery('''
+      SELECT 
+        COALESCE(SUM(CASE WHEN history_sign = '+' AND history_category_id NOT IN (1,2) THEN history_amount ELSE 0 END), 0) as income,
+        COALESCE(SUM(CASE WHEN history_sign = '-' AND history_category_id NOT IN (1,2) THEN history_amount ELSE 0 END), 0) as expense
+      FROM History
+      WHERE history_date >= ? AND history_date <= ?
+    ''', [startDate, endDate]);
+    return {
+      'income': (result.first['income'] as num?)?.toDouble() ?? 0.0,
+      'expense': (result.first['expense'] as num?)?.toDouble() ?? 0.0,
+    };
+  }
+
+  Future<List<HistoryModel>> getReportAsList({
+    required String startDate,
+    required String endDate,
+    int? categoryId,
+    String? sign,
+  }) async {
+    final db = await _db.database;
+    final conditions = <String>[
+      'h.history_date >= ?',
+      'h.history_date <= ?',
+      'h.history_category_id NOT IN (1,2)',
+    ];
+    final args = <dynamic>[startDate, endDate];
+
+    if (categoryId != null) {
+      conditions.add('h.history_category_id = ?');
+      args.add(categoryId);
+    }
+    if (sign != null) {
+      conditions.add('h.history_sign = ?');
+      args.add(sign);
+    }
+
+    final maps = await db.rawQuery(
+      '$_joinQuery WHERE ${conditions.join(' AND ')} ORDER BY h.history_date_time DESC',
+      args,
+    );
+    return maps.map(HistoryModel.fromMap).toList();
   }
 
   Future<int> insert(HistoryModel history) async {
@@ -152,6 +198,28 @@ class HistoryDao {
         where: 'history_transfer_id = ?', whereArgs: [transferId]);
   }
 
+  /// Hapus semua history terkait debt (termasuk trans) — untuk delete debt
+  Future<int> deleteByDebtId(int debtId) async {
+    final db = await _db.database;
+    return db.delete('History',
+        where: 'history_debt_id = ?', whereArgs: [debtId]);
+  }
+
+  /// Hapus history awal debt (bukan dari debt trans) berdasarkan debtId
+  Future<int> deleteByDebtIdExcludingTrans(int debtId) async {
+    final db = await _db.database;
+    return db.delete('History',
+        where: 'history_debt_id = ? AND history_debt_trans_id = 0',
+        whereArgs: [debtId]);
+  }
+
+  /// Hapus history yang terkait satu debt transaction
+  Future<int> deleteByDebtTransId(int debtTransId) async {
+    final db = await _db.database;
+    return db.delete('History',
+        where: 'history_debt_trans_id = ?', whereArgs: [debtTransId]);
+  }
+
   Future<List<Map<String, dynamic>>> getReportByCategory({
     required String startDate,
     required String endDate,
@@ -170,7 +238,7 @@ class HistoryDao {
       FROM History h
       LEFT JOIN Category c ON h.history_category_id = c.category_id
       WHERE h.history_date >= ? AND h.history_date <= ? $signFilter
-        AND h.history_type != 3
+        AND h.history_category_id NOT IN (1,2)
       GROUP BY c.category_id
       ORDER BY total_amount DESC
     ''', args);

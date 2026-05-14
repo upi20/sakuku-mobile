@@ -20,9 +20,11 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<HistoryBloc>()
-        .add(HistoryLoadByMonth(DateFormatter.currentYearMonth()));
+    // Jangan reset jika sudah ada data (misal kembali dari tab lain)
+    final bloc = context.read<HistoryBloc>();
+    if (bloc.state is HistoryInitial) {
+      bloc.add(HistoryLoadByMonth(DateFormatter.currentYearMonth()));
+    }
   }
 
   @override

@@ -163,7 +163,7 @@ class _DebtListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paid = debt.paidAmount ?? 0;
-    final progress = debt.amount > 0 ? (paid / debt.amount).clamp(0.0, 1.0) : 0.0;
+    final progress = debt.totalAmount > 0 ? (paid / debt.totalAmount).clamp(0.0, 1.0) : 0.0;
     final overdue = _isOverdue && !debt.isRelief;
 
     return Card(

@@ -15,6 +15,8 @@ import 'features/history/view/transfer_detail_page.dart';
 import 'features/history/view/filter_history_page.dart';
 import 'features/history/view/search_history_page.dart';
 import 'features/report/view/report_page.dart';
+import 'features/report/view/report_by_category_page.dart';
+import 'features/report/view/report_as_list_page.dart';
 import 'features/debt/view/debt_page.dart';
 import 'features/debt/view/add_debt_page.dart';
 import 'features/debt/view/edit_debt_page.dart';
@@ -67,6 +69,37 @@ final appRouter = GoRouter(
           path: '/report',
           name: 'report',
           builder: (_, _) => const ReportPage(),
+        ),
+        GoRoute(
+          path: '/report/category',
+          name: 'report-category',
+          builder: (context, state) {
+            final startDate = state.uri.queryParameters['startDate'] ?? '';
+            final endDate = state.uri.queryParameters['endDate'] ?? '';
+            final sign = state.uri.queryParameters['sign'] ?? '-';
+            return ReportByCategoryPage(
+                startDate: startDate, endDate: endDate, sign: sign);
+          },
+        ),
+        GoRoute(
+          path: '/report/list',
+          name: 'report-list',
+          builder: (context, state) {
+            final startDate = state.uri.queryParameters['startDate'] ?? '';
+            final endDate = state.uri.queryParameters['endDate'] ?? '';
+            final categoryIdStr = state.uri.queryParameters['categoryId'];
+            final categoryId =
+                categoryIdStr != null ? int.tryParse(categoryIdStr) : null;
+            final categoryName = state.uri.queryParameters['categoryName'];
+            final sign = state.uri.queryParameters['sign'];
+            return ReportAsListPage(
+              startDate: startDate,
+              endDate: endDate,
+              categoryId: categoryId,
+              categoryName: categoryName,
+              sign: sign,
+            );
+          },
         ),
         GoRoute(
           path: '/debt',

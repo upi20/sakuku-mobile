@@ -55,7 +55,17 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
   Future<void> _loadAccounts() async {
     final repo = AccountRepository();
     final list = await repo.getAll(activeOnly: true);
-    if (mounted) setState(() => _accounts = list);
+    if (!mounted) return;
+    setState(() {
+      _accounts = list;
+      // Jika trans sudah di-prefill tapi account belum ke-set (race condition), coba lagi
+      if (_original != null && _selectedAccount == null) {
+        try {
+          _selectedAccount =
+              list.firstWhere((a) => a.id == _original!.accountId);
+        } catch (_) {}
+      }
+    });
   }
 
   void _prefill(DebtTransModel t) {

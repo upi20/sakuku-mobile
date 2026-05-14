@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/database/app_database.dart';
 import '../../../core/repositories/interfaces/i_debt_repository.dart';
 import '../../../core/repositories/local/debt_repository.dart';
 import 'debt_event.dart';
@@ -53,13 +52,7 @@ class DebtBloc extends Bloc<DebtEvent, DebtState> {
 
   Future<void> _onDelete(DebtDelete event, Emitter<DebtState> emit) async {
     try {
-      final db = await AppDatabase.instance.database;
-      await db.transaction((txn) async {
-        await txn.delete('DebtTrans',
-            where: 'debt_trans_debt_id = ?', whereArgs: [event.id]);
-        await txn.delete('Debt',
-            where: 'debt_id = ?', whereArgs: [event.id]);
-      });
+      await _repo.deleteDebt(event.id);
       emit(const DebtSuccess('Berhasil dihapus'));
       add(DebtLoad(_currentType));
     } catch (e) {

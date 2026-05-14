@@ -126,7 +126,7 @@ class _DebtDetailBody extends StatelessWidget {
   Widget _buildContent(BuildContext context, DebtModel debt) {
     final paid = debt.paidAmount ?? 0;
     final progress =
-        debt.amount > 0 ? (paid / debt.amount).clamp(0.0, 1.0) : 0.0;
+        debt.totalAmount > 0 ? (paid / debt.totalAmount).clamp(0.0, 1.0) : 0.0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -335,6 +335,11 @@ class _TransItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isPembayaran = trans.type == 1;
+    final iconColor = isPembayaran ? AppColors.income : AppColors.expense;
+    final iconData = isPembayaran ? Icons.payment : Icons.add_circle_outline;
+    final label = isPembayaran ? 'Pembayaran' : 'Penambahan';
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -353,11 +358,10 @@ class _TransItem extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.income.withOpacity(0.12),
+                  color: iconColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.payment,
-                    color: AppColors.income, size: 20),
+                child: Icon(iconData, color: iconColor, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -372,6 +376,8 @@ class _TransItem extends StatelessWidget {
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: AppColors.darkBlue)),
+                    Text(label,
+                        style: TextStyle(fontSize: 12, color: iconColor)),
                     if (trans.note.isNotEmpty)
                       Text(trans.note,
                           style: const TextStyle(
@@ -381,10 +387,10 @@ class _TransItem extends StatelessWidget {
               ),
               Text(
                 CurrencyFormatter.format(trans.amount),
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: AppColors.income),
+                    color: iconColor),
               ),
             ],
           ),

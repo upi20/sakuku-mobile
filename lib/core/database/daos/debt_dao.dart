@@ -9,9 +9,15 @@ class DebtDao {
     SELECT d.*,
       a.account_name, a.account_icon, a.account_color,
       COALESCE(
-        (SELECT SUM(dt.debt_trans_amount) FROM DebtTrans dt WHERE dt.debt_trans_debt_id = d.debt_id),
+        (SELECT SUM(dt.debt_trans_amount) FROM DebtTrans dt
+         WHERE dt.debt_trans_debt_id = d.debt_id AND dt.debt_trans_type = 1),
         0
-      ) as paid_amount
+      ) as paid_amount,
+      COALESCE(
+        (SELECT SUM(dt.debt_trans_amount) FROM DebtTrans dt
+         WHERE dt.debt_trans_debt_id = d.debt_id AND dt.debt_trans_type = 2),
+        0
+      ) as added_amount
     FROM Debt d
     LEFT JOIN Account a ON d.debt_account_id = a.account_id
   ''';
@@ -34,9 +40,9 @@ class DebtDao {
 
     String outerWhere = '';
     if (isRelief == true) {
-      outerWhere = 'WHERE paid_amount >= debt_amount';
+      outerWhere = 'WHERE paid_amount >= (debt_amount + added_amount)';
     } else if (isRelief == false) {
-      outerWhere = 'WHERE paid_amount < debt_amount';
+      outerWhere = 'WHERE paid_amount < (debt_amount + added_amount)';
     }
 
     final maps = await db.rawQuery(
