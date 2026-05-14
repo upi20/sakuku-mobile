@@ -65,7 +65,8 @@ class BalancingBloc extends Bloc<BalancingEvent, BalancingState> {
 
       final items = accounts.map((acc) {
         final appBal = balances[acc.id] ?? 0.0;
-        return BalancingItem(account: acc, appBalance: appBal);
+        // realBalance diisi sama dengan appBalance agar selisih awal = 0
+        return BalancingItem(account: acc, appBalance: appBal, realBalance: appBal);
       }).toList();
 
       emit(BalancingLoaded(items: items));
@@ -239,7 +240,7 @@ class BalancingBloc extends Bloc<BalancingEvent, BalancingState> {
         await _historyDao.insert(HistoryModel(
           categoryId: entry.categoryId,
           accountId: balancingId,
-          type: 2,
+          type: 1,   // transaksi biasa (bukan transfer)
           amount: entry.amount,
           date: dateStr,
           time: timeStr,

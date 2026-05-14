@@ -96,6 +96,25 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
   }
 
   void _goNext(BuildContext context) {
+    final state = context.read<BalancingBloc>().state;
+    if (state is BalancingLoaded) {
+      for (int i = 0; i < state.bulkEntries.length; i++) {
+        final e = state.bulkEntries[i];
+        if (e.note.trim().isEmpty) {
+          _showValidationError(context, 'Baris ${i + 1}: catatan wajib diisi');
+          return;
+        }
+        if (e.amount <= 0) {
+          _showValidationError(context, 'Baris ${i + 1}: nominal wajib diisi');
+          return;
+        }
+        if (e.categoryId == 0) {
+          _showValidationError(context, 'Baris ${i + 1}: kategori wajib dipilih');
+          return;
+        }
+      }
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -105,6 +124,13 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
         ),
       ),
     );
+  }
+
+  void _showValidationError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: AppColors.expense,
+    ));
   }
 
   void _showCategoryPicker(

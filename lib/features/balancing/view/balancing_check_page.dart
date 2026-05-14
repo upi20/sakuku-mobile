@@ -30,11 +30,28 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
     super.dispose();
   }
 
-  TextEditingController _controllerFor(int accountId) {
+  TextEditingController _controllerFor(int accountId, double initialValue) {
     return _controllers.putIfAbsent(
       accountId,
-      () => TextEditingController(text: '0'),
+      () => TextEditingController(
+        text: ThousandsInputFormatter.formatForDisplay(initialValue.toInt()),
+      ),
     );
+  }
+
+  void _resetController(
+      BuildContext context, int accountId, double appBalance) {
+    final ctrl = _controllers[accountId];
+    if (ctrl == null) return;
+    final formatted =
+        ThousandsInputFormatter.formatForDisplay(appBalance.toInt());
+    ctrl.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+    context
+        .read<BalancingBloc>()
+        .add(BalancingRealBalanceChanged(accountId, appBalance));
   }
 
   void _onInputChanged(BuildContext context, int accountId, String value) {
@@ -54,7 +71,7 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
       ),
       builder: (_) => BalancingDenominationSheet(
         onUse: (total) {
-          final ctrl = _controllerFor(accountId);
+          final ctrl = _controllerFor(accountId, total);
           final formatted = ThousandsInputFormatter.formatForDisplay(total.toInt());
           ctrl.value = TextEditingValue(
             text: formatted,
@@ -181,12 +198,14 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
                   itemBuilder: (context, index) {
                     final item = items[index];
                     final accId = item.account.id!;
-                    final ctrl = _controllerFor(accId);
+                    final ctrl = _controllerFor(accId, item.appBalance);
                     return _AccountRow(
                       item: item,
                       controller: ctrl,
                       onChanged: (val) =>
                           _onInputChanged(context, accId, val),
+                      onReset: () => _resetController(
+                          context, accId, item.appBalance),
                       onDenomination: item.isDenominationEligible
                           ? () => _openDenomination(context, accId)
                           : null,
@@ -238,12 +257,14 @@ class _AccountRow extends StatelessWidget {
   final BalancingItem item;
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+  final VoidCallback onReset;
   final VoidCallback? onDenomination;
 
   const _AccountRow({
     required this.item,
     required this.controller,
     required this.onChanged,
+    required this.onReset,
     this.onDenomination,
   });
 
@@ -316,6 +337,21 @@ class _AccountRow extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                           borderSide: const BorderSide(
                               color: AppColors.primary, width: 1.5),
+                        ),
+                        // Tombol reset: tampil hanya jika nilai berbeda dari app
+                        suffixIcon: selisih != 0
+                            ? GestureDetector(
+                                onTap: onReset,
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: AppColors.darkGray,
+                                ),
+                              )
+                            : null,
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
                         ),
                       ),
                     ),
