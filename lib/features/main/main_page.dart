@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../history/bloc/history_bloc.dart';
 
 class MainPage extends StatefulWidget {
   final Widget child;
@@ -47,6 +49,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _onTap(int index) {
+    // Jika user kembali ke tab Transaksi, refresh data tanpa mereset filter.
+    if (index == 0) {
+      final bloc = context.read<HistoryBloc>();
+      if (bloc.state is! HistoryInitial) {
+        bloc.add(HistoryRefresh());
+      }
+    }
     context.go(_tabs[index].route);
   }
 

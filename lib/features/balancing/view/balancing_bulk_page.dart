@@ -6,6 +6,7 @@ import '../../../core/database/daos/category_dao.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/thousands_formatter.dart';
+import '../../../shared/widgets/colored_icon.dart';
 import '../bloc/balancing_bloc.dart';
 import '../model/bulk_transaction_entry.dart';
 import 'balancing_confirm_page.dart';
@@ -517,7 +518,7 @@ class _BulkEntryCard extends StatelessWidget {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CategoryPickerSheet extends StatelessWidget {
+class _CategoryPickerSheet extends StatefulWidget {
   final List<CategoryModel> categories;
   final int selectedId;
   final ValueChanged<CategoryModel> onSelected;
@@ -529,11 +530,44 @@ class _CategoryPickerSheet extends StatelessWidget {
   });
 
   @override
+  State<_CategoryPickerSheet> createState() => _CategoryPickerSheetState();
+}
+
+class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  List<CategoryModel> _filtered = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filtered = widget.categories;
+    _searchCtrl.addListener(_onSearch);
+  }
+
+  void _onSearch() {
+    final q = _searchCtrl.text.toLowerCase();
+    setState(() {
+      _filtered = q.isEmpty
+          ? widget.categories
+          : widget.categories
+              .where((c) => c.name.toLowerCase().contains(q))
+              .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Handle bar
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
             width: 40,
@@ -542,8 +576,10 @@ class _CategoryPickerSheet extends StatelessWidget {
                 color: AppColors.divider,
                 borderRadius: BorderRadius.circular(2)),
           ),
+
+          // Judul
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text('Pilih Kategori',
@@ -553,37 +589,95 @@ class _CategoryPickerSheet extends StatelessWidget {
                       color: AppColors.darkBlue)),
             ),
           ),
-          const Divider(height: 1),
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: categories.length,
-              itemBuilder: (_, i) {
-                final cat = categories[i];
-                final isSelected = cat.id == selectedId;
-                return ListTile(
-                  dense: true,
-                  title: Text(cat.name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.darkBlue,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      )),
-                  trailing: isSelected
-                      ? const Icon(Icons.check,
-                          color: AppColors.primary, size: 18)
-                      : null,
-                  onTap: () {
-                    onSelected(cat);
-                    Navigator.pop(context);
-                  },
-                );
-              },
+
+          // Search field
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: TextField(
+              controller: _searchCtrl,
+              autofocus: true,
+              style: const TextStyle(fontSize: 14, color: AppColors.darkBlue),
+              decoration: InputDecoration(
+                hintText: 'Cari kategori...',
+                hintStyle:
+                    const TextStyle(fontSize: 14, color: AppColors.darkGray),
+                prefixIcon:
+                    const Icon(Icons.search, color: AppColors.darkGray, size: 20),
+                suffixIcon: _searchCtrl.text.isNotEmpty
+                    ? GestureDetector(
+                        onTap: () {
+                          _searchCtrl.clear();
+                        },
+                        child: const Icon(Icons.close,
+                            color: AppColors.darkGray, size: 18),
+                      )
+                    : null,
+                isDense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.divider)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.divider)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary, width: 1.5)),
+              ),
             ),
+          ),
+
+          const Divider(height: 1),
+
+          // List kategori
+          Flexible(
+            child: _filtered.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Text('Kategori tidak ditemukan',
+                        style: TextStyle(
+                            fontSize: 13, color: AppColors.darkGray)),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _filtered.length,
+                    itemBuilder: (_, i) {
+                      final cat = _filtered[i];
+                      final isSelected = cat.id == widget.selectedId;
+                      return ListTile(
+                        dense: true,
+                        leading: ColoredIcon(
+                          iconName: cat.icon,
+                          backgroundColor:
+                              ColoredIcon.parseColor(cat.color),
+                          size: 32,
+                          iconSize: 18,
+                        ),
+                        title: Text(
+                          cat.name,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.darkBlue,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(Icons.check,
+                                color: AppColors.primary, size: 18)
+                            : null,
+                        onTap: () {
+                          widget.onSelected(cat);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),
