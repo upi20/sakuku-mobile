@@ -35,6 +35,8 @@ import 'features/category/view/category_page.dart';
 import 'features/category/view/add_category_page.dart';
 import 'features/category/view/edit_category_page.dart';
 import 'features/settings/view/info_page.dart';
+import 'features/export/view/export_page.dart';
+import 'features/export/view/backup_restore_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -323,6 +325,18 @@ final appRouter = GoRouter(
       name: 'settings-info',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (_, _) => const InfoPage(),
+    ),
+    GoRoute(
+      path: '/settings/export',
+      name: 'settings-export',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const ExportPage(),
+    ),
+    GoRoute(
+      path: '/settings/backup',
+      name: 'settings-backup',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const BackupRestorePage(),
     ),
   ],
 

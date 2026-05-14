@@ -59,12 +59,12 @@ class SettingsPage extends StatelessWidget {
           _SettingsItem(
             icon: Icons.upload_file_outlined,
             label: 'Ekspor Excel',
-            onTap: null, // Phase 10
+            onTap: () => context.push('/settings/export'),
           ),
           _SettingsItem(
             icon: Icons.backup_outlined,
             label: 'Backup & Restore',
-            onTap: null, // Phase 10
+            onTap: () => context.push('/settings/backup'),
           ),
 
           // Lainnya
