@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/models/history_model.dart';
@@ -37,57 +38,62 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Search bar
-            Container(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleSpacing: 0,
+          title: Container(
+            margin: const EdgeInsets.only(right: 12),
+            decoration: BoxDecoration(
               color: Colors.white,
-              padding: const EdgeInsets.all(12),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: AppColors.darkBlue),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        autofocus: true,
-                        decoration: const InputDecoration(
-                          hintText: 'Cari transaksi...',
-                          border: InputBorder.none,
-                          isDense: true,
-                        ),
-                        onChanged: _search,
-                      ),
-                    ),
-                    if (_controller.text.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          _controller.clear();
-                          setState(() { _results = []; _searched = false; });
-                        },
-                        child: const Icon(Icons.close,
-                            color: AppColors.darkGray, size: 20),
-                      ),
-                  ],
-                ),
-              ),
+              borderRadius: BorderRadius.circular(8),
             ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            child: Row(
+              children: [
+                const Icon(Icons.search, color: AppColors.darkGray, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    autofocus: true,
+                    style: const TextStyle(color: AppColors.darkBlue),
+                    cursorColor: AppColors.primary,
+                    decoration: const InputDecoration(
+                      hintText: 'Cari transaksi...',
+                      hintStyle: TextStyle(color: AppColors.darkGray),
+                      border: InputBorder.none,
+                      isDense: true,
+                    ),
+                    onChanged: _search,
+                  ),
+                ),
+                if (_controller.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      _controller.clear();
+                      setState(() { _results = []; _searched = false; });
+                    },
+                    child: const Icon(Icons.close,
+                        color: AppColors.darkGray, size: 20),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        body: Column(
+          children: [
             // Results
             Expanded(
               child: !_searched
                   ? const EmptyState(
                       icon: Icons.history,
-                      message: 'Belum ada transaksi',
+                      message: 'Ketik untuk mencari transaksi',
                     )
                   : _results.isEmpty
                       ? const EmptyState(
