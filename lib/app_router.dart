@@ -34,6 +34,7 @@ import 'features/account/view/edit_account_page.dart';
 import 'features/category/view/category_page.dart';
 import 'features/category/view/add_category_page.dart';
 import 'features/category/view/edit_category_page.dart';
+import 'features/settings/view/info_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -314,6 +315,14 @@ final appRouter = GoRouter(
         final id = int.parse(state.pathParameters['categoryId']!);
         return EditCategoryPage(categoryId: id);
       },
+    ),
+
+    // ── Settings sub-routes ──────────────────────────────────────
+    GoRoute(
+      path: '/settings/info',
+      name: 'settings-info',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (_, _) => const InfoPage(),
     ),
   ],
 

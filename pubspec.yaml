@@ -48,6 +48,8 @@ dependencies:
   intl: ^0.20.2
   shared_preferences: ^2.5.3
   path_provider: ^2.1.5
+  share_plus: ^10.1.4
+  url_launcher: ^6.3.1
 
   # Network (slot for future API sync)
   dio: ^5.8.0+1

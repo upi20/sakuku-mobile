@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
+
+  Future<void> _shareApp(BuildContext context) async {
+    await Share.share(
+      'DompetKu — Aplikasi pencatatan keuangan pribadi. Download sekarang!',
+    );
+  }
+
+  Future<void> _openStoreListing() async {
+    // Ganti dengan link store yang sesuai saat publish
+    final uri = Uri.parse('https://play.google.com/store/apps');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +33,8 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          // Kelola Data
+          _SectionHeader(label: 'Kelola Data'),
           _SettingsItem(
             icon: Icons.account_balance_wallet_outlined,
             label: 'Rekening',
@@ -27,27 +45,44 @@ class SettingsPage extends StatelessWidget {
             label: 'Kategori',
             onTap: () => context.push('/settings/category'),
           ),
-          const SizedBox(height: 8),
+
+          // Keamanan
+          _SectionHeader(label: 'Keamanan'),
           _SettingsItem(
             icon: Icons.pin_outlined,
             label: 'PIN',
             onTap: () => context.push('/settings/pin'),
           ),
+
+          // Data
+          _SectionHeader(label: 'Data'),
           _SettingsItem(
             icon: Icons.upload_file_outlined,
-            label: 'Export',
-            onTap: null, // Phase 7
+            label: 'Ekspor Excel',
+            onTap: null, // Phase 10
           ),
           _SettingsItem(
             icon: Icons.backup_outlined,
-            label: 'Backup',
-            onTap: null, // Phase 7
+            label: 'Backup & Restore',
+            onTap: null, // Phase 10
           ),
-          const SizedBox(height: 8),
+
+          // Lainnya
+          _SectionHeader(label: 'Lainnya'),
+          _SettingsItem(
+            icon: Icons.share_outlined,
+            label: 'Bagikan Aplikasi',
+            onTap: () => _shareApp(context),
+          ),
           _SettingsItem(
             icon: Icons.star_outline,
-            label: 'Beri Nilai',
-            onTap: null,
+            label: 'Beri Penilaian',
+            onTap: _openStoreListing,
+          ),
+          _SettingsItem(
+            icon: Icons.info_outline,
+            label: 'Info Aplikasi',
+            onTap: () => context.push('/settings/info'),
           ),
         ],
       ),
@@ -88,6 +123,27 @@ class _SettingsItem extends StatelessWidget {
             ),
             const Icon(Icons.chevron_right, color: AppColors.darkBlue),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  const _SectionHeader({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: AppColors.darkGray,
+          letterSpacing: 0.8,
         ),
       ),
     );
