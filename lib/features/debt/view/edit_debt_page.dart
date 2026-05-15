@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/debt_model.dart';
 import '../../../core/repositories/local/account_repository.dart';
@@ -148,10 +148,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Edit Hutang/Piutang'),
         elevation: 0,
       ),
@@ -163,8 +160,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
             context.pop();
           } else if (state is DebtError) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.expense));
+                content: Text(state.message)));
           }
         },
         child: BlocBuilder<DebtBloc, DebtState>(
@@ -177,7 +173,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
               child: Column(
                 children: [
                   Container(
-                    color: Colors.white,
+                    color: context.cs.surfaceContainerLowest,
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
@@ -185,7 +181,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
                           child: DebtTypeButton(
                             label: 'Hutang',
                             selected: _type == 1,
-                            color: AppColors.expense,
+                            color: AppTheme.expense,
                             onTap: () => setState(() => _type = 1),
                           ),
                         ),
@@ -194,7 +190,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
                           child: DebtTypeButton(
                             label: 'Piutang',
                             selected: _type == 2,
-                            color: AppColors.income,
+                            color: AppTheme.income,
                             onTap: () => setState(() => _type = 2),
                           ),
                         ),
@@ -215,8 +211,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [ThousandsInputFormatter()],
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue),
+                          fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
                         hintText: '0',
                         border: OutlineInputBorder(),
@@ -232,8 +227,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
                       controller: _nameCtrl,
                       maxLength: 500,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue),
+                          fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
                         hintText: 'Nama hutang/piutang',
                         border: OutlineInputBorder(),
@@ -251,8 +245,7 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
                       maxLength: 500,
                       maxLines: 3,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue),
+                          fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
                         hintText: 'Catatan (opsional)',
                         border: OutlineInputBorder(),
@@ -310,11 +303,9 @@ class _EditDebtBodyState extends State<_EditDebtBody> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
+          child: FilledButton(
             onPressed: _save,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+            style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),

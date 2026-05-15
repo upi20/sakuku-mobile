@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../bloc/history_bloc.dart';
 import '../widgets/history_summary_card.dart';
 import '../widgets/history_date_header.dart';
@@ -30,20 +30,15 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text(
-          'Riwayat',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Riwayat'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
+            icon: const Icon(Icons.search),
             onPressed: () => context.push('/history/search'),
           ),
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.white),
+            icon: const Icon(Icons.filter_list),
             onPressed: () => context.push('/history/filter'),
           ),
         ],
@@ -168,7 +163,7 @@ class _HistoryBody extends StatelessWidget {
       case HistoryViewMode.all:
       case HistoryViewMode.custom:
         return Container(
-          color: Colors.white,
+          color: context.cs.surfaceContainerLowest,
           width: double.infinity,
           padding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -178,7 +173,6 @@ class _HistoryBody extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
             ),
           ),
         );
@@ -200,13 +194,13 @@ class _NavRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left, color: AppColors.darkBlue),
+            icon: const Icon(Icons.chevron_left),
             onPressed: onPrev,
           ),
           Text(
@@ -214,11 +208,10 @@ class _NavRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_right, color: AppColors.darkBlue),
+            icon: const Icon(Icons.chevron_right),
             onPressed: onNext,
           ),
         ],

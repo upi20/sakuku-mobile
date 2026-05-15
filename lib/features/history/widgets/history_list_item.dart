@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/history_model.dart';
 import '../../../shared/widgets/colored_icon.dart';
 import '../../../shared/widgets/amount_text.dart';
@@ -27,11 +27,8 @@ class HistoryListItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
-          ],
+        decoration: BoxDecoration(
+          color: context.cs.surface,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,10 +45,10 @@ class HistoryListItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.categoryName ?? '-',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkBlue,
+                            color: context.cs.onSurface,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -72,9 +69,9 @@ class HistoryListItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.accountName ?? '-',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.darkGray,
+                            color: context.cs.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -83,9 +80,9 @@ class HistoryListItem extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         DateFormatter.formatTime(item.time),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.darkGray,
+                          color: context.cs.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -93,26 +90,22 @@ class HistoryListItem extends StatelessWidget {
                   // Note row (only when note exists)
                   if (hasNote) ...[
                     const SizedBox(height: 4),
-                    const Divider(
-                      color: AppColors.lightBlue,
-                      height: 1,
-                      thickness: 1,
-                    ),
+                    const Divider(height: 1),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.edit,
                           size: 14,
-                          color: AppColors.darkGray,
+                          color: context.cs.onSurfaceVariant,
                         ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             item.note,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.darkGray,
+                              color: context.cs.onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

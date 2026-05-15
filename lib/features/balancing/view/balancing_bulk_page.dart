@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/database/daos/category_dao.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
@@ -130,7 +130,7 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
   void _showValidationError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message),
-      backgroundColor: AppColors.expense,
+      backgroundColor: context.cs.error,
     ));
   }
 
@@ -156,10 +156,7 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Catatan Transaksi  (Langkah 2 dari 3)'),
         elevation: 0,
       ),
@@ -186,7 +183,7 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
                         child: Text(
                           'Belum ada catatan.\nTambah baris untuk mulai.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.darkGray),
+
                         ),
                       )
                     : ListView.separated(
@@ -226,11 +223,7 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
                   icon: const Icon(Icons.add, size: 18),
                   label: const Text('Tambah Baris'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
                     minimumSize: const Size.fromHeight(40),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
               ),
@@ -241,18 +234,9 @@ class _BalancingBulkPageState extends State<BalancingBulkPage> {
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                   child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: FilledButton(
                       onPressed: () => _goNext(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Lanjut  →',
-                          style: TextStyle(fontSize: 15)),
+                      child: const Text('Lanjut  →'),
                     ),
                   ),
                 ),
@@ -281,17 +265,17 @@ class _InfoBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selisihColor = totalSelisih < 0
-        ? AppColors.expense
+        ? AppTheme.expense
         : totalSelisih > 0
-            ? AppColors.income
-            : AppColors.darkGray;
+            ? AppTheme.income
+            : context.cs.onSurfaceVariant;
 
     final sisaColor = sisaSelisih == 0
-        ? AppColors.income              // pas → hijau
-        : const Color(0xFFFF8F00);      // masih kurang / melebihi → oranye
+        ? AppTheme.income              // pas → hijau
+        : AppTheme.transfer;           // masih kurang / melebihi → oranye
 
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
         children: [
@@ -309,7 +293,7 @@ class _InfoBanner extends StatelessWidget {
                 child: _BannerCell(
                   label: 'Total Catatan',
                   value: CurrencyFormatter.format(totalBulk),
-                  valueColor: AppColors.darkBlue,
+                  valueColor: context.cs.onSurface,
                   align: TextAlign.end,
                 ),
               ),
@@ -319,8 +303,8 @@ class _InfoBanner extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Sisa yang belum dijelaskan',
-                  style: TextStyle(fontSize: 11, color: AppColors.darkGray)),
+              Text('Sisa yang belum dijelaskan',
+                  style: TextStyle(fontSize: 11, color: context.cs.onSurfaceVariant)),
               Text(
                 sisaSelisih == 0
                     ? 'Rp 0  ✓'
@@ -360,8 +344,8 @@ class _BannerCell extends StatelessWidget {
           : CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, color: AppColors.darkGray)),
+            style: TextStyle(
+                fontSize: 11, color: context.cs.onSurfaceVariant)),
         const SizedBox(height: 2),
         Text(value,
             style: TextStyle(
@@ -413,14 +397,14 @@ class _BulkEntryCard extends StatelessWidget {
             Row(
               children: [
                 Text('Baris ${index + 1}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.darkGray)),
+                        color: context.cs.onSurfaceVariant)),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline,
-                      color: AppColors.expense, size: 20),
+                  icon: Icon(Icons.delete_outline,
+                      color: context.cs.error, size: 20),
                   onPressed: onDelete,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -434,8 +418,7 @@ class _BulkEntryCard extends StatelessWidget {
               controller: noteController,
               onChanged: onNoteChanged,
               decoration: _inputDecoration('Catatan'),
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.darkBlue),
+              style: const TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 8),
 
@@ -450,8 +433,7 @@ class _BulkEntryCard extends StatelessWidget {
                     onChanged: onAmountChanged,
                     decoration:
                         _inputDecoration('Nominal').copyWith(prefixText: 'Rp '),
-                    style: const TextStyle(
-                        fontSize: 13, color: AppColors.darkBlue),
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -464,7 +446,7 @@ class _BulkEntryCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 12),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.divider),
+                        border: Border.all(color: context.cs.outlineVariant),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -477,14 +459,13 @@ class _BulkEntryCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 color: entry.categoryId == 0
-                                    ? AppColors.darkGray
-                                    : AppColors.darkBlue,
+                                    ? context.cs.onSurfaceVariant
+                                    : context.cs.onSurface,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Icon(Icons.arrow_drop_down,
-                              color: AppColors.darkGray, size: 20),
+                          const Icon(Icons.arrow_drop_down, size: 20),
                         ],
                       ),
                     ),
@@ -501,17 +482,10 @@ class _BulkEntryCard extends StatelessWidget {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle:
-          const TextStyle(fontSize: 12, color: AppColors.darkGray),
       isDense: true,
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(4),
-        borderSide:
-            const BorderSide(color: AppColors.primary, width: 1.5),
-      ),
     );
   }
 }
@@ -571,26 +545,14 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.divider,
-                borderRadius: BorderRadius.circular(2)),
-          ),
-
           // Judul
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text('Pilih Kategori',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue)),
+                  style: context.tt.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold)),
             ),
           ),
 
@@ -600,20 +562,17 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
             child: TextField(
               controller: _searchCtrl,
               autofocus: true,
-              style: const TextStyle(fontSize: 14, color: AppColors.darkBlue),
+              style: const TextStyle(fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Cari kategori...',
-                hintStyle:
-                    const TextStyle(fontSize: 14, color: AppColors.darkGray),
                 prefixIcon:
-                    const Icon(Icons.search, color: AppColors.darkGray, size: 20),
+                    const Icon(Icons.search, size: 20),
                 suffixIcon: _searchCtrl.text.isNotEmpty
                     ? GestureDetector(
                         onTap: () {
                           _searchCtrl.clear();
                         },
-                        child: const Icon(Icons.close,
-                            color: AppColors.darkGray, size: 18),
+                        child: const Icon(Icons.close, size: 18),
                       )
                     : null,
                 isDense: true,
@@ -621,14 +580,14 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.divider)),
+                    borderSide: BorderSide(color: context.cs.outlineVariant)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.divider)),
+                    borderSide: BorderSide(color: context.cs.outlineVariant)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide:
-                        const BorderSide(color: AppColors.primary, width: 1.5)),
+                        BorderSide(color: context.cs.primary, width: 1.5)),
               ),
             ),
           ),
@@ -640,9 +599,7 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
             child: _filtered.isEmpty
                 ? const Padding(
                     padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Text('Kategori tidak ditemukan',
-                        style: TextStyle(
-                            fontSize: 13, color: AppColors.darkGray)),
+                    child: Text('Kategori tidak ditemukan'),
                   )
                 : ListView.builder(
                     shrinkWrap: true,
@@ -664,16 +621,16 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                           style: TextStyle(
                             fontSize: 14,
                             color: isSelected
-                                ? AppColors.primary
-                                : AppColors.darkBlue,
+                                ? context.cs.primary
+                                : context.cs.onSurface,
                             fontWeight: isSelected
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                           ),
                         ),
                         trailing: isSelected
-                            ? const Icon(Icons.check,
-                                color: AppColors.primary, size: 18)
+                            ? Icon(Icons.check,
+                                color: context.cs.primary, size: 18)
                             : null,
                         onTap: () {
                           widget.onSelected(cat);

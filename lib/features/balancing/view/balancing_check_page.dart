@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/thousands_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
@@ -100,10 +100,7 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Cek Saldo  (Langkah 1 dari 3)'),
         elevation: 0,
       ),
@@ -119,11 +116,9 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(state.message,
-                      style:
-                          const TextStyle(color: AppColors.darkGray),
                       textAlign: TextAlign.center),
                   const SizedBox(height: 16),
-                  ElevatedButton(
+                  FilledButton(
                     onPressed: () => context
                         .read<BalancingBloc>()
                         .add(const BalancingLoad()),
@@ -148,16 +143,16 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
             children: [
               // ── Header tabel ─────────────────────────────────
               Container(
-                color: AppColors.primary,
+                color: context.cs.primaryContainer,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
-                  children: const [
+                  children: [
                     Expanded(
                         flex: 3,
                         child: Text('Rekening',
                             style: TextStyle(
-                                color: Colors.white,
+                                color: context.cs.onPrimaryContainer,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600))),
                     Expanded(
@@ -165,7 +160,7 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
                         child: Text('Sekarang',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.white,
+                                color: context.cs.onPrimaryContainer,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600))),
                     Expanded(
@@ -173,7 +168,7 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
                         child: Text('Aplikasi',
                             textAlign: TextAlign.end,
                             style: TextStyle(
-                                color: Colors.white,
+                                color: context.cs.onPrimaryContainer,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600))),
                     Expanded(
@@ -181,7 +176,7 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
                         child: Text('Selisih',
                             textAlign: TextAlign.end,
                             style: TextStyle(
-                                color: Colors.white,
+                                color: context.cs.onPrimaryContainer,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600))),
                   ],
@@ -227,18 +222,9 @@ class _BalancingCheckPageState extends State<BalancingCheckPage> {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                   child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: FilledButton(
                       onPressed: () => _goNext(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Lanjut  →',
-                          style: TextStyle(fontSize: 15)),
+                      child: const Text('Lanjut  →'),
                     ),
                   ),
                 ),
@@ -271,14 +257,11 @@ class _AccountRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selisih = item.selisih;
-    Color selisihColor;
-    if (selisih < 0) {
-      selisihColor = AppColors.expense;
-    } else if (selisih > 0) {
-      selisihColor = AppColors.income;
-    } else {
-      selisihColor = AppColors.darkGray;
-    }
+    final selisihColor = selisih < 0
+        ? context.cs.error
+        : selisih > 0
+            ? AppTheme.income
+            : context.cs.onSurfaceVariant;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -301,8 +284,7 @@ class _AccountRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.account.name,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.darkBlue),
+                    style: const TextStyle(fontSize: 12),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -325,19 +307,13 @@ class _AccountRow extends StatelessWidget {
                       inputFormatters: [ThousandsInputFormatter()],
                       onChanged: onChanged,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.darkBlue),
+                      style: const TextStyle(fontSize: 12),
                       decoration: InputDecoration(
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 8),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4)),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                              color: AppColors.primary, width: 1.5),
-                        ),
                         // Tombol reset: tampil hanya jika nilai berbeda dari app
                         suffixIcon: selisih != 0
                             ? GestureDetector(
@@ -345,7 +321,6 @@ class _AccountRow extends StatelessWidget {
                                 child: const Icon(
                                   Icons.close,
                                   size: 14,
-                                  color: AppColors.darkGray,
                                 ),
                               )
                             : null,
@@ -359,10 +334,10 @@ class _AccountRow extends StatelessWidget {
                   if (onDenomination != null)
                     GestureDetector(
                       onTap: onDenomination,
-                      child: const Padding(
-                        padding: EdgeInsets.only(left: 2),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 2),
                         child: Icon(Icons.calculate_outlined,
-                            size: 18, color: AppColors.primary),
+                            size: 18, color: context.cs.primary),
                       ),
                     ),
                 ],
@@ -376,8 +351,7 @@ class _AccountRow extends StatelessWidget {
             child: Text(
               CurrencyFormatter.format(item.appBalance),
               textAlign: TextAlign.end,
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.darkBlue),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
 
@@ -415,37 +389,36 @@ class _TotalRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color selisihColor;
-    if (totalSelisih < 0) {
-      selisihColor = AppColors.expense;
-    } else if (totalSelisih > 0) {
-      selisihColor = AppColors.income;
-    } else {
-      selisihColor = AppColors.darkGray;
-    }
+    final selisihColor = totalSelisih < 0
+        ? context.cs.error
+        : totalSelisih > 0
+            ? AppTheme.income
+            : context.cs.onSurfaceVariant;
 
     return Container(
-      color: AppColors.primary.withValues(alpha: 0.06),
+      color: context.cs.surfaceContainerLow,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 3,
-            child: Text('TOTAL',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue)),
+            child: Text(
+              'TOTAL',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: context.cs.onSurface),
+            ),
           ),
           Expanded(
             flex: 3,
             child: Text(
               CurrencyFormatter.format(totalReal),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue),
+                  color: context.cs.onSurface),
             ),
           ),
           Expanded(
@@ -453,10 +426,10 @@ class _TotalRow extends StatelessWidget {
             child: Text(
               CurrencyFormatter.format(totalApp),
               textAlign: TextAlign.end,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue),
+                  color: context.cs.onSurface),
             ),
           ),
           Expanded(

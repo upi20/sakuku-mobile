@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});
@@ -7,10 +7,7 @@ class InfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Info Aplikasi'),
         elevation: 0,
       ),
@@ -24,35 +21,35 @@ class InfoPage extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.cs.primary,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: context.cs.primary.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.account_balance_wallet,
                 size: 52,
-                color: Colors.white,
+                color: context.cs.onPrimary,
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'DompetKu',
-              style: TextStyle(
-                fontSize: 26,
+              style: context.tt.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue,
+                color: context.cs.onSurface,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Versi 2.0.0',
-              style: TextStyle(fontSize: 14, color: AppColors.darkGray),
+              style: context.tt.bodyMedium?.copyWith(
+                  color: context.cs.onSurfaceVariant),
             ),
             const SizedBox(height: 32),
 
@@ -91,12 +88,11 @@ class InfoPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 40),
-            const Text(
+            Text(
               '© 2026 Isep Lutpi Nur\nAll rights reserved.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.darkGray,
+              style: context.tt.bodySmall?.copyWith(
+                color: context.cs.onSurfaceVariant,
                 height: 1.6,
               ),
             ),
@@ -125,25 +121,23 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          Icon(icon, size: 22, color: AppColors.primarySoft),
+      Icon(icon, size: 22, color: context.cs.primary),
           const SizedBox(width: 16),
           SizedBox(
             width: 100,
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.darkGray,
+              style: context.tt.bodySmall?.copyWith(
+                color: context.cs.onSurfaceVariant,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
+              style: context.tt.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkBlue,
+                color: context.cs.onSurface,
               ),
             ),
           ),

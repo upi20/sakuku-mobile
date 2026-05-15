@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/date_formatter.dart';
@@ -49,12 +48,8 @@ class _AddTransferPageState extends State<AddTransferPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            title: const Text('Transfer Saldo',
-                style: TextStyle(color: Colors.white)),
-            iconTheme: const IconThemeData(color: Colors.white),
+            title: const Text('Transfer Saldo'),
           ),
           body: state is TransferReady
               ? _buildForm(context, state)
@@ -116,11 +111,11 @@ class _AddTransferPageState extends State<AddTransferPage> {
         ),
         // Save button
         Container(
-          color: Colors.white,
+          color: context.cs.surfaceContainerLowest,
           padding: const EdgeInsets.all(16),
           child: SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: FilledButton(
               onPressed: () {
                 context.read<TransferBloc>()
                   ..add(TransferAmountChanged(
@@ -129,9 +124,7 @@ class _AddTransferPageState extends State<AddTransferPage> {
                       ThousandsInputFormatter.toRaw(_feeController.text)))
                   ..add(TransferSubmit());
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+              style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
@@ -192,7 +185,7 @@ class _AccountPickerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,16 +197,13 @@ class _AccountPickerCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue,
                   letterSpacing: 0.5,
                 ),
               ),
-              if (balance != null) ...[
-                const SizedBox(width: 8),
+              if (balance != null) ...[const SizedBox(width: 8),
                 Text(
                   CurrencyFormatter.format(balance!),
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.darkGray),
+                  style: const TextStyle(fontSize: 11),
                 ),
               ],
             ],
@@ -225,7 +215,7 @@ class _AccountPickerCard extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(color: context.cs.outlineVariant),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -235,8 +225,8 @@ class _AccountPickerCard extends StatelessWidget {
                       account?.name ?? hint,
                       style: TextStyle(
                         color: account != null
-                            ? AppColors.darkBlue
-                            : AppColors.disabled,
+                            ? null
+                            : context.cs.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
@@ -277,7 +267,7 @@ class _InputCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,7 +277,6 @@ class _InputCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -300,7 +289,6 @@ class _InputCard extends StatelessWidget {
                   'Rp',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue,
                     fontSize: 16,
                   ),
                 ),
@@ -317,16 +305,9 @@ class _InputCard extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: hint,
                     counterText: '',
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue,
                     fontSize: 16,
                   ),
                 ),
@@ -352,7 +333,7 @@ class _DateTimeSection extends StatelessWidget {
         '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
@@ -369,13 +350,9 @@ class _DateTimeSection extends StatelessWidget {
                   context.read<TransferBloc>().add(TransferDateChanged(picked));
                 }
               },
-              icon: const Icon(Icons.date_range,
-                  size: 18, color: AppColors.darkBlue),
-              label: Text(dateStr,
-                  style: const TextStyle(
-                      color: AppColors.darkBlue, fontSize: 13)),
+              icon: const Icon(Icons.date_range, size: 18),
+              label: Text(dateStr, style: const TextStyle(fontSize: 13)),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.divider),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
                 padding: const EdgeInsets.symmetric(
@@ -394,13 +371,9 @@ class _DateTimeSection extends StatelessWidget {
                 context.read<TransferBloc>().add(TransferTimeChanged(picked));
               }
             },
-            icon: const Icon(Icons.access_time,
-                size: 18, color: AppColors.darkBlue),
-            label: Text(timeStr,
-                style:
-                    const TextStyle(color: AppColors.darkBlue, fontSize: 13)),
+            icon: const Icon(Icons.access_time, size: 18),
+            label: Text(timeStr, style: const TextStyle(fontSize: 13)),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.divider),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(
@@ -434,8 +407,7 @@ class _AccountListSheet extends StatelessWidget {
           child: Text(title,
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppColors.darkBlue)),
+                  fontSize: 16)),
         ),
         Flexible(
           child: ListView.builder(
@@ -448,12 +420,10 @@ class _AccountListSheet extends StatelessWidget {
               return ListTile(
                 leading:
                     ColoredIcon(iconName: acc.icon, backgroundColor: bg),
-                title: Text(acc.name,
-                    style: const TextStyle(color: AppColors.darkBlue)),
+                title: Text(acc.name),
                 subtitle: Text(
                   CurrencyFormatter.format(bal),
-                  style: const TextStyle(
-                      color: AppColors.darkGray, fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
                 onTap: () => Navigator.of(context).pop(acc),
               );

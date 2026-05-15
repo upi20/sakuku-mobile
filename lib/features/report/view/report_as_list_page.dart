@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../history/widgets/history_list_item.dart';
@@ -246,10 +246,7 @@ class _ReportAsListBodyState extends State<_ReportAsListBody> {
   Widget build(BuildContext context) {
     final title = widget.categoryName ?? 'Laporan List';
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: Text(title),
         elevation: 0,
         actions: [
@@ -264,13 +261,12 @@ class _ReportAsListBodyState extends State<_ReportAsListBody> {
         children: [
           // Navigasi waktu
           Container(
-            color: Colors.white,
+            color: context.cs.surfaceContainerLowest,
             child: Row(
               children: [
                 if (_canNavigate)
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios,
-                        color: AppColors.darkBlue),
+                    icon: const Icon(Icons.arrow_back_ios),
                     onPressed: _prev,
                   )
                 else
@@ -279,16 +275,15 @@ class _ReportAsListBodyState extends State<_ReportAsListBody> {
                   child: Text(
                     _currentLabel,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.darkBlue),
+                        color: context.cs.onSurface),
                   ),
                 ),
                 if (_canNavigate)
                   IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios,
-                        color: AppColors.darkBlue),
+                    icon: const Icon(Icons.arrow_forward_ios),
                     onPressed: _next,
                   )
                 else
@@ -298,7 +293,7 @@ class _ReportAsListBodyState extends State<_ReportAsListBody> {
           ),
           // Filter jenis transaksi
           Container(
-            color: Colors.white,
+            color: context.cs.surfaceContainerLowest,
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
             child: Row(
               children: [
@@ -347,21 +342,21 @@ class _ReportAsListBodyState extends State<_ReportAsListBody> {
     return ListView(
       children: [
         Container(
-          color: Colors.white,
+          color: context.cs.surfaceContainerLowest,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           margin: const EdgeInsets.only(bottom: 2),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total',
-                  style: TextStyle(fontSize: 14, color: AppColors.darkBlue)),
+              Text('Total',
+                  style: TextStyle(fontSize: 14, color: context.cs.onSurface)),
               Text(
                 CurrencyFormatter.format(
                     state.totalIncome - state.totalExpense),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primarySoft),
+                    color: context.cs.primary),
               ),
             ],
           ),
@@ -377,7 +372,7 @@ class _ReportAsListBodyState extends State<_ReportAsListBody> {
         else
           ...state.histories.map((h) => HistoryListItem(
                 item: h,
-                onTap: () => context.push('/history/${h.id}/detail'),
+                onTap: () => context.push('/history/${h.id}'),
               )),
         const SizedBox(height: 16),
       ],
@@ -405,16 +400,16 @@ class _SignChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.transparent,
+          color: selected ? context.cs.primary : Colors.transparent,
           border: Border.all(
-              color: selected ? AppColors.primary : AppColors.divider),
+              color: selected ? context.cs.primary : context.cs.outlineVariant),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            color: selected ? Colors.white : AppColors.darkGray,
+            color: selected ? context.cs.onPrimary : context.cs.onSurfaceVariant,
             fontWeight: selected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -446,8 +441,7 @@ class _FilterSheet extends StatelessWidget {
           const Text('Filter Rentang Waktu',
               style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue)),
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -457,11 +451,6 @@ class _FilterSheet extends StatelessWidget {
               return ChoiceChip(
                 label: Text(label),
                 selected: mode == currentMode,
-                selectedColor: AppColors.primary,
-                labelStyle: TextStyle(
-                  color:
-                      mode == currentMode ? Colors.white : AppColors.darkBlue,
-                ),
                 onSelected: (_) => Navigator.pop(context, mode),
               );
             }).toList(),

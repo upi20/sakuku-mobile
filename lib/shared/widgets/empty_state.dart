@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/app_theme.dart';
 
 /// Centered empty state with icon and message.
 class EmptyState extends StatelessWidget {
@@ -18,13 +18,12 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: AppColors.darkGray),
+          Icon(icon, size: 64, color: context.cs.onSurfaceVariant),
           const SizedBox(height: 8),
           Text(
             message,
-            style: const TextStyle(
-              fontSize: 16,
-              color: AppColors.darkGray,
+            style: context.tt.bodyMedium?.copyWith(
+              color: context.cs.onSurfaceVariant,
             ),
           ),
         ],

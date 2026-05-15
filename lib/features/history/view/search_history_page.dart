@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/history_model.dart';
 import '../../../core/repositories/interfaces/i_history_repository.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -38,54 +37,47 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
-          titleSpacing: 0,
-          title: Container(
-            margin: const EdgeInsets.only(right: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            child: Row(
-              children: [
-                const Icon(Icons.search, color: AppColors.darkGray, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    autofocus: true,
-                    style: const TextStyle(color: AppColors.darkBlue),
-                    cursorColor: AppColors.primary,
-                    decoration: const InputDecoration(
-                      hintText: 'Cari transaksi...',
-                      hintStyle: TextStyle(color: AppColors.darkGray),
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
-                    onChanged: _search,
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        titleSpacing: 0,
+        title: Container(
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: context.cs.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          child: Row(
+            children: [
+              Icon(Icons.search, color: context.cs.onSurfaceVariant, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  autofocus: true,
+                  cursorColor: context.cs.primary,
+                  decoration: const InputDecoration(
+                    hintText: 'Cari transaksi...',
+                    border: InputBorder.none,
+                    isDense: true,
                   ),
+                  onChanged: _search,
                 ),
-                if (_controller.text.isNotEmpty)
-                  GestureDetector(
-                    onTap: () {
-                      _controller.clear();
-                      setState(() { _results = []; _searched = false; });
-                    },
-                    child: const Icon(Icons.close,
-                        color: AppColors.darkGray, size: 20),
-                  ),
-              ],
-            ),
+              ),
+              if (_controller.text.isNotEmpty)
+                GestureDetector(
+                  onTap: () {
+                    _controller.clear();
+                    setState(() { _results = []; _searched = false; });
+                  },
+                  child: Icon(Icons.close,
+                      color: context.cs.onSurfaceVariant, size: 20),
+                ),
+            ],
           ),
         ),
+      ),
         body: Column(
           children: [
             // Results
@@ -120,7 +112,6 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
             ),
           ],
         ),
-      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/debt_model.dart';
 import '../../../core/models/debt_trans_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
@@ -40,10 +40,7 @@ class _DebtDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Detail'),
         elevation: 0,
         actions: [
@@ -52,12 +49,12 @@ class _DebtDetailBody extends StatelessWidget {
               if (state is DebtDetailLoaded) {
                 return PopupMenuButton<String>(
                   onSelected: (v) => _onMenu(context, v, state.debt),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
                     PopupMenuItem(
                         value: 'delete',
-                        child:
-                            Text('Hapus', style: TextStyle(color: Colors.red))),
+                        child: Text('Hapus',
+                            style: TextStyle(color: Theme.of(context).colorScheme.error))),
                   ],
                 );
               }
@@ -73,8 +70,7 @@ class _DebtDetailBody extends StatelessWidget {
           } else if (state is DebtError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: AppColors.expense),
+                  content: Text(state.message)),
             );
           }
         },
@@ -148,8 +144,8 @@ class _DebtDetailBody extends StatelessWidget {
                           horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: debt.isDebt
-                            ? AppColors.expense.withOpacity(0.12)
-                            : AppColors.income.withOpacity(0.12),
+                            ? AppTheme.expense.withValues(alpha: 0.12)
+                            : AppTheme.income.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
@@ -158,8 +154,8 @@ class _DebtDetailBody extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                             color: debt.isDebt
-                                ? AppColors.expense
-                                : AppColors.income),
+                                ? AppTheme.expense
+                                : AppTheme.income),
                       ),
                     ),
                   ),
@@ -203,28 +199,26 @@ class _DebtDetailBody extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('TERBAYAR',
-                              style: TextStyle(
-                                  fontSize: 11, color: AppColors.darkGray)),
+                              style: TextStyle(fontSize: 11)),
                           Text(CurrencyFormatter.format(paid),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
-                                  color: AppColors.income)),
+                                  color: AppTheme.income)),
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           const Text('SISA',
-                              style: TextStyle(
-                                  fontSize: 11, color: AppColors.darkGray)),
+                              style: TextStyle(fontSize: 11)),
                           Text(
                               CurrencyFormatter.format(
                                   debt.remainingAmount.clamp(0, double.infinity)),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
-                                  color: AppColors.darkBlue)),
+                                  color: context.cs.onSurface)),
                         ],
                       ),
                     ],
@@ -235,9 +229,8 @@ class _DebtDetailBody extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 8,
-                      backgroundColor: AppColors.divider,
-                      valueColor:
-                          const AlwaysStoppedAnimation(AppColors.income),
+                      backgroundColor: context.cs.surfaceContainerHighest,
+                      valueColor: AlwaysStoppedAnimation(AppTheme.income),
                     ),
                   ),
                 ],
@@ -249,8 +242,7 @@ class _DebtDetailBody extends StatelessWidget {
           const Text('RIWAYAT TRANSAKSI',
               style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkGray)),
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           BlocBuilder<DebtTransBloc, DebtTransState>(
             builder: (context, state) {
@@ -259,11 +251,11 @@ class _DebtDetailBody extends StatelessWidget {
               }
               if (state is DebtTransLoaded) {
                 if (state.transactions.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Center(
                         child: Text('Belum ada transaksi',
-                            style: TextStyle(color: AppColors.darkGray))),
+                            style: TextStyle(color: context.cs.onSurfaceVariant))),
                   );
                 }
                 return Column(
@@ -309,15 +301,13 @@ class _LabelValue extends StatelessWidget {
             child: Text(label,
                 style: const TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkGray)),
+                    fontWeight: FontWeight.bold)),
           ),
           Expanded(
             child: Text(value,
                 style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue)),
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -336,7 +326,7 @@ class _TransItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPembayaran = trans.type == 1;
-    final iconColor = isPembayaran ? AppColors.income : AppColors.expense;
+    final iconColor = isPembayaran ? AppTheme.income : AppTheme.expense;
     final iconData = isPembayaran ? Icons.payment : Icons.add_circle_outline;
     final label = isPembayaran ? 'Pembayaran' : 'Penambahan';
 
@@ -358,7 +348,7 @@ class _TransItem extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.12),
+                  color: iconColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(iconData, color: iconColor, size: 20),
@@ -372,16 +362,16 @@ class _TransItem extends StatelessWidget {
                         trans.dateTime.length >= 10
                             ? trans.dateTime.substring(0, 10)
                             : trans.dateTime,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkBlue)),
+                            color: context.cs.onSurface)),
                     Text(label,
                         style: TextStyle(fontSize: 12, color: iconColor)),
                     if (trans.note.isNotEmpty)
                       Text(trans.note,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.darkGray)),
+                          style: TextStyle(
+                              fontSize: 12, color: context.cs.onSurfaceVariant)),
                   ],
                 ),
               ),

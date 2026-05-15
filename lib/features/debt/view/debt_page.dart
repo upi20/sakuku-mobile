@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/repositories/local/debt_repository.dart';
 import '../../../core/models/debt_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
@@ -11,10 +11,7 @@ class DebtPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Hutang & Piutang'),
         elevation: 0,
       ),
@@ -76,7 +73,7 @@ class _DebtOverviewBodyState extends State<_DebtOverviewBody> {
             label: 'HUTANG',
             subtitle: 'Saya berhutang kepada orang lain',
             icon: Icons.credit_card,
-            iconColor: AppColors.expense,
+            iconColor: AppTheme.expense,
             count: _hutangList.length,
             totalRemaining: _totalRemaining(_hutangList),
             onTap: () async {
@@ -89,7 +86,7 @@ class _DebtOverviewBodyState extends State<_DebtOverviewBody> {
             label: 'PIUTANG',
             subtitle: 'Orang lain berhutang kepada saya',
             icon: Icons.monetization_on,
-            iconColor: AppColors.income,
+            iconColor: AppTheme.income,
             count: _piutangList.length,
             totalRemaining: _totalRemaining(_piutangList),
             onTap: () async {
@@ -138,7 +135,7 @@ class _SummaryCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.15),
+                  color: iconColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: iconColor, size: 28),
@@ -149,13 +146,13 @@ class _SummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(label,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGray)),
+                            color: context.cs.onSurfaceVariant)),
                     Text(subtitle,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.darkGray)),
+                        style: TextStyle(
+                            fontSize: 12, color: context.cs.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -163,8 +160,8 @@ class _SummaryCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('$count belum lunas',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.darkGray)),
+                      style: TextStyle(
+                          fontSize: 12, color: context.cs.onSurfaceVariant)),
                   const SizedBox(height: 4),
                   Text(
                     CurrencyFormatter.format(totalRemaining),
@@ -176,7 +173,7 @@ class _SummaryCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, color: AppColors.darkGray),
+              const Icon(Icons.chevron_right),
             ],
           ),
         ),

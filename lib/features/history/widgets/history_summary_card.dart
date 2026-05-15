@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 
 /// Summary card shown at top of HistoryPage matching layout_summary_history
@@ -21,30 +21,29 @@ class HistorySummaryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+      decoration: BoxDecoration(
+        color: context.cs.surface,
       ),
       child: Column(
         children: [
           _SummaryRow(
             label: 'Pemasukan',
             amount: income,
-            amountColor: AppColors.income,
+            amountColor: AppTheme.income,
           ),
           const SizedBox(height: 4),
           _SummaryRow(
             label: 'Pengeluaran',
             amount: expense,
-            amountColor: AppColors.expense,
+            amountColor: AppTheme.expense,
           ),
           const SizedBox(height: 6),
-          const Divider(color: AppColors.lightBlue, height: 1, thickness: 1),
+          const Divider(height: 1),
           const SizedBox(height: 6),
           _SummaryRow(
             label: 'Total',
             amount: total,
-            amountColor: AppColors.balance,
+            amountColor: AppTheme.balanced,
           ),
         ],
       ),
@@ -69,10 +68,7 @@ class _SummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.darkBlue,
-          ),
+          style: TextStyle(fontSize: 14, color: context.cs.onSurface),
         ),
         Expanded(
           child: Text(

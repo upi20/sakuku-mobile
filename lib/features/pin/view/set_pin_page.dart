@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../bloc/pin_bloc.dart';
 import '../bloc/pin_event.dart';
 import '../bloc/pin_state.dart';
@@ -61,10 +61,10 @@ class _SetPinBodyState extends State<_SetPinBody> {
         } else {
           _shake();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('PIN tidak cocok, mulai dari awal'),
-              backgroundColor: AppColors.expense,
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: const Text('PIN tidak cocok, mulai dari awal'),
+              backgroundColor: context.cs.error,
+              duration: const Duration(seconds: 2),
             ),
           );
           Future.delayed(const Duration(milliseconds: 600), () {
@@ -101,7 +101,6 @@ class _SetPinBodyState extends State<_SetPinBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('PIN berhasil disimpan'),
-              backgroundColor: AppColors.income,
             ),
           );
           context.pop();
@@ -109,16 +108,16 @@ class _SetPinBodyState extends State<_SetPinBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.expense,
+              backgroundColor: context.cs.error,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
+        backgroundColor: context.cs.primary,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor: context.cs.onPrimary,
           elevation: 0,
           title: Text(widget.isChange ? 'Ganti PIN' : 'Buat PIN'),
         ),
@@ -126,12 +125,12 @@ class _SetPinBodyState extends State<_SetPinBody> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.lock_outline, color: Colors.white, size: 48),
+              Icon(Icons.lock_outline, color: context.cs.onPrimary, size: 48),
               const SizedBox(height: 16),
               Text(
                 _title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.cs.onPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -140,7 +139,7 @@ class _SetPinBodyState extends State<_SetPinBody> {
               Text(
                 _subtitle,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
+                  color: context.cs.onPrimary.withValues(alpha: 0.75),
                   fontSize: 14,
                 ),
               ),
@@ -162,9 +161,9 @@ class _SetPinBodyState extends State<_SetPinBody> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: filled
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.3),
-                        border: Border.all(color: Colors.white, width: 2),
+                            ? context.cs.onPrimary
+                            : context.cs.onPrimary.withValues(alpha: 0.3),
+                        border: Border.all(color: context.cs.onPrimary, width: 2),
                       ),
                     );
                   }),

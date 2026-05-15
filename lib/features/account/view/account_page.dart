@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/models/account_model.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -28,10 +28,7 @@ class _AccountBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Rekening'),
         elevation: 0,
       ),
@@ -43,10 +40,7 @@ class _AccountBody extends StatelessWidget {
             );
           } else if (state is AccountError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.expense,
-              ),
+              SnackBar(content: Text(state.message)),
             );
           }
         },
@@ -61,8 +55,6 @@ class _AccountBody extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primarySoft,
-        foregroundColor: Colors.white,
         onPressed: () async {
           await context.push('/settings/account/add');
           if (context.mounted) {
@@ -84,7 +76,7 @@ class _AccountBody extends StatelessWidget {
           // Total balance header card (sesuai app lama: ic_account_all + "Total" + jumlah)
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: context.cs.surfaceContainerLowest,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 4),
               child: Row(
@@ -93,25 +85,25 @@ class _AccountBody extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(20),
+                      color: context.cs.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.account_balance_wallet,
-                        color: AppColors.primary, size: 28),
+                    child: Icon(Icons.account_balance_wallet,
+                        color: context.cs.primary, size: 28),
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Total',
+                      Text('Total',
                           style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.darkBlue)),
+                              color: context.cs.onSurface)),
                       Text(
                         CurrencyFormatter.format(state.totalBalance),
-                        style: const TextStyle(
-                            fontSize: 13, color: AppColors.darkGray),
+                        style: TextStyle(
+                            fontSize: 13, color: context.cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -169,11 +161,11 @@ class _AccountListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _parseColor(account.color);
+    final color = _parseColor(account.color, context.cs.primary);
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: Colors.white,
+        color: context.cs.surfaceContainerLowest,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         margin: const EdgeInsets.only(bottom: 1),
         child: Row(
@@ -188,7 +180,7 @@ class _AccountListItem extends StatelessWidget {
               ),
               child: Icon(
                 AppIcons.fromName(account.icon),
-                color: account.active == 1 ? color : AppColors.disabled,
+                color: account.active == 1 ? color : context.cs.onSurfaceVariant,
                 size: 28,
               ),
             ),
@@ -203,31 +195,31 @@ class _AccountListItem extends StatelessWidget {
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: account.active == 1
-                          ? AppColors.darkBlue
-                          : AppColors.disabled,
+                          ? context.cs.onSurface
+                          : context.cs.onSurfaceVariant,
                     ),
                   ),
                   Text(
                     CurrencyFormatter.format(balance),
-                    style: const TextStyle(
-                        fontSize: 13, color: AppColors.darkGray),
+                    style: TextStyle(
+                        fontSize: 13, color: context.cs.onSurfaceVariant),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.darkGray),
+            Icon(Icons.chevron_right, color: context.cs.onSurfaceVariant),
           ],
         ),
       ),
     );
   }
 
-  Color _parseColor(String hex) {
+  Color _parseColor(String hex, Color fallback) {
     try {
       final cleaned = hex.replaceFirst('#', '');
       return Color(int.parse('FF$cleaned', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return fallback;
     }
   }
 }

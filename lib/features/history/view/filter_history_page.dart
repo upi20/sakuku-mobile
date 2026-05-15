@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/category_model.dart';
 import '../../../core/repositories/interfaces/i_account_repository.dart';
@@ -92,12 +92,9 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
         title:
-            const Text('Filter', style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+            const Text('Filter'),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -136,7 +133,7 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
       (HistoryViewMode.custom, 'Sesuaikan'),
     ];
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       margin: const EdgeInsets.only(bottom: 1),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Column(
@@ -147,7 +144,6 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
             style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue,
                 letterSpacing: 0.5),
           ),
           const SizedBox(height: 8),
@@ -163,13 +159,7 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
                     selected: selected,
                     onSelected: (_) =>
                         setState(() => _viewMode = opt.$1),
-                    selectedColor: AppColors.primary,
-                    backgroundColor: Colors.grey.shade200,
                     showCheckmark: false,
-                    labelStyle: TextStyle(
-                      color: selected ? Colors.white : AppColors.darkBlue,
-                      fontWeight: FontWeight.w500,
-                    ),
                   ),
                 );
               }).toList(),
@@ -182,7 +172,7 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
 
   Widget _buildCustomDateSection() {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       margin: const EdgeInsets.only(bottom: 1),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Column(
@@ -193,7 +183,6 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
             style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue,
                 letterSpacing: 0.5),
           ),
           const SizedBox(height: 6),
@@ -220,7 +209,6 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
             style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue,
                 letterSpacing: 0.5),
           ),
           const SizedBox(height: 6),
@@ -298,7 +286,7 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
   Widget _sectionHeader(String title) {
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Text(
@@ -306,7 +294,6 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
         style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.bold,
-            color: AppColors.darkBlue,
             letterSpacing: 0.5),
       ),
     );
@@ -322,7 +309,7 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: Colors.white,
+        color: context.cs.surfaceContainerLowest,
         padding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -335,14 +322,13 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
             Expanded(
               child: Text(
                 name,
-                style: const TextStyle(
-                    fontSize: 14, color: AppColors.darkBlue),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
             Icon(
               Icons.check,
               size: 20,
-              color: checked ? AppColors.primary : Colors.transparent,
+              color: checked ? context.cs.primary : Colors.transparent,
             ),
           ],
         ),
@@ -352,15 +338,13 @@ class _FilterHistoryPageState extends State<FilterHistoryPage> {
 
   Widget _buildFilterButton() {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
+        child: FilledButton(
           onPressed: _applyFilter,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+          style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8)),

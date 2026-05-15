@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_theme.dart';
+
 /// Numpad custom 4x3 untuk input PIN.
 /// [onKey] dipanggil dengan karakter '0'–'9'.
 /// [onDelete] dipanggil saat tombol hapus ditekan.
@@ -39,8 +41,8 @@ class PinNumpad extends StatelessWidget {
                 child: Icon(
                   Icons.backspace_outlined,
                   color: darkMode
-                      ? Colors.white.withValues(alpha: 0.85)
-                      : Colors.black87,
+                      ? context.cs.onPrimary.withValues(alpha: 0.85)
+                      : context.cs.onSurface.withValues(alpha: 0.85),
                   size: 22,
                 ),
               );
@@ -53,9 +55,7 @@ class PinNumpad extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: darkMode
-                      ? Colors.white
-                      : Colors.black87,
+                  color: darkMode ? context.cs.onPrimary : context.cs.onSurface,
                 ),
               ),
             );
@@ -79,14 +79,13 @@ class _NumKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fg = darkMode ? context.cs.onPrimary : context.cs.onSurface;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(40),
-        splashColor: darkMode
-            ? Colors.white.withValues(alpha: 0.2)
-            : Colors.black.withValues(alpha: 0.1),
+        splashColor: fg.withValues(alpha: darkMode ? 0.2 : 0.1),
         highlightColor: Colors.transparent,
         child: SizedBox(
           width: 80,

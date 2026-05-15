@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 
 /// Date group header matching item_history_header.xml.
@@ -23,9 +23,8 @@ class HistoryDateHeader extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+      decoration: BoxDecoration(
+        color: context.cs.surface,
       ),
       child: Row(
         children: [
@@ -36,10 +35,10 @@ class HistoryDateHeader extends StatelessWidget {
             child: Center(
               child: Text(
                 dateNumber,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue,
+                  color: context.cs.onSurface,
                 ),
               ),
             ),
@@ -52,16 +51,16 @@ class HistoryDateHeader extends StatelessWidget {
               children: [
                 Text(
                   dayName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.darkBlue,
+                    color: context.cs.onSurface,
                   ),
                 ),
                 Text(
                   monthYear,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.darkGray,
+                    color: context.cs.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -70,9 +69,9 @@ class HistoryDateHeader extends StatelessWidget {
           // Daily total
           Text(
             CurrencyFormatter.format(dailyTotal),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: AppColors.darkBlue,
+              color: context.cs.onSurface,
             ),
           ),
         ],

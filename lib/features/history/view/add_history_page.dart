@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/utils/date_formatter.dart';
@@ -49,12 +48,8 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            title: const Text('Tambah Transaksi',
-                style: TextStyle(color: Colors.white)),
-            iconTheme: const IconThemeData(color: Colors.white),
+            title: const Text('Tambah Transaksi'),
           ),
           body: state is AddHistoryReady
               ? _buildForm(context, state)
@@ -156,14 +151,14 @@ class _TypeToggle extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       child: Row(
         children: [
           Expanded(
             child: _ToggleBtn(
               label: 'Pemasukan',
               selected: sign == '+',
-              selectedColor: AppColors.income,
+              selectedColor: AppTheme.income,
               onTap: () => context
                   .read<AddHistoryBloc>()
                   .add(AddHistoryTypeChanged('+')),
@@ -173,7 +168,7 @@ class _TypeToggle extends StatelessWidget {
             child: _ToggleBtn(
               label: 'Pengeluaran',
               selected: sign == '-',
-              selectedColor: AppColors.expense,
+              selectedColor: AppTheme.expense,
               onTap: () => context
                   .read<AddHistoryBloc>()
                   .add(AddHistoryTypeChanged('-')),
@@ -243,7 +238,7 @@ class _PickerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +248,6 @@ class _PickerCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -264,7 +258,7 @@ class _PickerCard extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(color: context.cs.outlineVariant),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -274,8 +268,8 @@ class _PickerCard extends StatelessWidget {
                       selectedName ?? hint,
                       style: TextStyle(
                         color: selectedName != null
-                            ? AppColors.darkBlue
-                            : AppColors.disabled,
+                            ? null
+                            : context.cs.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
@@ -303,7 +297,7 @@ class _AmountField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +307,6 @@ class _AmountField extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -325,7 +318,6 @@ class _AmountField extends StatelessWidget {
                 'Rp',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue,
                   fontSize: 16,
                 ),
               ),
@@ -336,19 +328,12 @@ class _AmountField extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   inputFormatters: [ThousandsInputFormatter()],
                   maxLength: 19,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: '0',
                     counterText: '',
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue,
                     fontSize: 16,
                   ),
                 ),
@@ -368,22 +353,16 @@ class _NoteField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.multiline,
         maxLines: null,
         maxLength: 500,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           hintText: 'Tambah catatan...',
           counterText: '',
-          filled: true,
-          fillColor: AppColors.background,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
-          ),
         ),
       ),
     );
@@ -402,7 +381,7 @@ class _DateTimeCard extends StatelessWidget {
     final timeStr =
         '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
@@ -462,11 +441,9 @@ class _DateTimeBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 18, color: AppColors.darkBlue),
-      label: Text(label,
-          style: const TextStyle(color: AppColors.darkBlue, fontSize: 13)),
+      icon: Icon(icon, size: 18),
+      label: Text(label, style: const TextStyle(fontSize: 13)),
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: AppColors.divider),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
@@ -481,15 +458,13 @@ class _SaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
+        child: FilledButton(
           onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+          style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8)),
@@ -518,8 +493,7 @@ class _CategoryPicker extends StatelessWidget {
           child: Text('Pilih Kategori',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppColors.darkBlue)),
+                  fontSize: 16)),
         ),
         Flexible(
           child: ListView.builder(
@@ -532,8 +506,7 @@ class _CategoryPicker extends StatelessWidget {
                 leading: ColoredIcon(
                     iconName: cat.icon, backgroundColor: bg,
                     size: 40, iconSize: 22),
-                title: Text(cat.name,
-                    style: const TextStyle(color: AppColors.darkBlue)),
+                title: Text(cat.name),
                 onTap: () => Navigator.of(context).pop(cat),
               );
             },
@@ -559,8 +532,7 @@ class _AccountPicker extends StatelessWidget {
           child: Text('Pilih Rekening',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppColors.darkBlue)),
+                  fontSize: 16)),
         ),
         Flexible(
           child: ListView.builder(
@@ -573,8 +545,7 @@ class _AccountPicker extends StatelessWidget {
                 leading: ColoredIcon(
                     iconName: acc.icon, backgroundColor: bg,
                     size: 40, iconSize: 22),
-                title: Text(acc.name,
-                    style: const TextStyle(color: AppColors.darkBlue)),
+                title: Text(acc.name),
                 onTap: () => Navigator.of(context).pop(acc),
               );
             },

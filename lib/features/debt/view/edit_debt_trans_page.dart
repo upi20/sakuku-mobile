@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/debt_trans_model.dart';
 import '../../../core/repositories/local/account_repository.dart';
@@ -133,10 +133,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Edit Transaksi'),
         elevation: 0,
       ),
@@ -152,8 +149,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
             context.pop();
           } else if (state is DebtTransError) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.expense));
+                content: Text(state.message)));
           }
         },
         child: BlocBuilder<DebtTransBloc, DebtTransState>(
@@ -167,7 +163,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                 children: [
                   // Type
                   Container(
-                    color: Colors.white,
+                    color: context.cs.surfaceContainerLowest,
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
@@ -175,7 +171,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                           child: DebtTypeButton(
                             label: 'Pembayaran',
                             selected: _type == 1,
-                            color: AppColors.income,
+                            color: AppTheme.income,
                             onTap: () => setState(() => _type = 1),
                           ),
                         ),
@@ -184,7 +180,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                           child: DebtTypeButton(
                             label: 'Penambahan',
                             selected: _type == 2,
-                            color: AppColors.expense,
+                            color: AppTheme.expense,
                             onTap: () => setState(() => _type = 2),
                           ),
                         ),
@@ -205,8 +201,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [ThousandsInputFormatter()],
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue),
+                          fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
                         hintText: '0',
                         border: OutlineInputBorder(),
@@ -223,8 +218,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                       maxLength: 500,
                       maxLines: 3,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue),
+                          fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
                         hintText: 'Catatan (opsional)',
                         border: OutlineInputBorder(),
@@ -236,7 +230,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    color: Colors.white,
+                    color: context.cs.surfaceContainerLowest,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     child: Column(
@@ -245,8 +239,7 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
                         const Text('TANGGAL',
                             style: TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.darkGray)),
+                                fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         Row(
                           children: [
@@ -288,11 +281,9 @@ class _EditDebtTransBodyState extends State<_EditDebtTransBody> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
+          child: FilledButton(
             onPressed: _save,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+            style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),

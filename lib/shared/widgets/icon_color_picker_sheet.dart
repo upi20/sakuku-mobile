@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 
 /// Bottom sheet untuk memilih ikon dan warna rekening/kategori.
 class IconColorPickerSheet extends StatefulWidget {
@@ -43,12 +43,14 @@ class _IconColorPickerSheetState extends State<IconColorPickerSheet> {
       final cleaned = hex.replaceFirst('#', '');
       return Color(int.parse('FF$cleaned', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = context.cs;
+    final tt = context.tt;
     final pickerColor = _parseColor(_color);
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -57,22 +59,12 @@ class _IconColorPickerSheetState extends State<IconColorPickerSheet> {
       expand: false,
       builder: (_, scrollController) => Column(
         children: [
-          const SizedBox(height: 8),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.divider,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Pilih Ikon & Warna',
-            style: TextStyle(
-              fontSize: 16,
+            style: tt.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
+              color: cs.onSurface,
             ),
           ),
           const Divider(),
@@ -82,13 +74,12 @@ class _IconColorPickerSheetState extends State<IconColorPickerSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                     child: Text('Ikon',
-                        style: TextStyle(
-                            fontSize: 12,
+                        style: tt.labelSmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGray)),
+                            color: cs.onSurfaceVariant)),
                   ),
                   GridView.count(
                     shrinkWrap: true,
@@ -117,20 +108,19 @@ class _IconColorPickerSheetState extends State<IconColorPickerSheet> {
                             entry.value,
                             color: selected
                                 ? pickerColor
-                                : AppColors.darkGray,
+                                : cs.onSurfaceVariant,
                             size: 28,
                           ),
                         ),
                       );
                     }).toList(),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                     child: Text('Warna',
-                        style: TextStyle(
-                            fontSize: 12,
+                        style: tt.labelSmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGray)),
+                            color: cs.onSurfaceVariant)),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -151,7 +141,7 @@ class _IconColorPickerSheetState extends State<IconColorPickerSheet> {
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: selected
-                                    ? AppColors.darkBlue
+                                    ? cs.outline
                                     : Colors.transparent,
                                 width: 2.5,
                               ),
@@ -174,20 +164,12 @@ class _IconColorPickerSheetState extends State<IconColorPickerSheet> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 onPressed: () {
                   widget.onSelected(_icon, _color);
                   Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('PILIH',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text('PILIH'),
               ),
             ),
           ),

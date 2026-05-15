@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/models/account_model.dart';
 import '../../../shared/widgets/icon_color_picker_sheet.dart';
@@ -73,8 +73,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   .read<AccountBloc>()
                   .add(AccountDelete(widget.accountId));
             },
-            child: const Text('HAPUS',
-                style: TextStyle(color: AppColors.expense)),
+            child: Text('HAPUS',
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -105,19 +105,13 @@ class _EditAccountPageState extends State<EditAccountPage> {
           context.pop();
         } else if (state is AccountError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.expense,
-            ),
+            SnackBar(content: Text(state.message)),
           );
         }
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
             title: const Text('Edit Rekening'),
             elevation: 0,
           ),
@@ -141,7 +135,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                 _buildAccountCard(context),
                 const SizedBox(height: 8),
                 // Card: toggle aktif
-                _buildActivationCard(),
+                _buildActivationCard(context),
                 const SizedBox(height: 8),
                 // Tombol hapus
                 _buildDeleteButton(context),
@@ -155,19 +149,19 @@ class _EditAccountPageState extends State<EditAccountPage> {
   }
 
   Widget _buildAccountCard(BuildContext context) {
-    final color = _parseColor(_selectedColor);
+    final color = _parseColor(_selectedColor, context.cs.primary);
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('REKENING',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue,
-                  letterSpacing: 0.5)),
+          Text('REKENING',
+              style: context.tt.labelSmall?.copyWith(
+                color: context.cs.primary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              )),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -175,19 +169,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
                 child: TextField(
                   controller: _nameController,
                   maxLength: 25,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.darkBlue),
-                  decoration: InputDecoration(
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(
                     hintText: 'Nama rekening',
                     counterText: '',
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
                   ),
                 ),
               ),
@@ -213,19 +198,19 @@ class _EditAccountPageState extends State<EditAccountPage> {
     );
   }
 
-  Widget _buildActivationCard() {
+  Widget _buildActivationCard(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('AKTIVASI REKENING',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue,
-                  letterSpacing: 0.5)),
+          Text('AKTIVASI REKENING',
+              style: context.tt.labelSmall?.copyWith(
+                color: context.cs.primary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              )),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -234,7 +219,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   'Rekening nonaktif tidak akan muncul di daftar pilihan transaksi',
                   style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.darkGray,
+                      color: context.cs.onSurfaceVariant,
                       height: 1.4),
                   maxLines: 2,
                 ),
@@ -242,8 +227,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
               const SizedBox(width: 8),
               Switch(
                 value: _isActive,
-                activeThumbColor: AppColors.primary,
-                activeTrackColor: AppColors.primary.withAlpha(100),
                 onChanged: (val) => setState(() => _isActive = val),
               ),
             ],
@@ -260,12 +243,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.delete_outline, color: AppColors.expense, size: 22),
-            SizedBox(width: 6),
+          children: [
+            Icon(Icons.delete_outline, color: context.cs.error, size: 22),
+            const SizedBox(width: 6),
             Text('HAPUS REKENING',
                 style: TextStyle(
-                    color: AppColors.expense,
+                    color: context.cs.error,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                     letterSpacing: 0.5)),
@@ -277,21 +260,13 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   Widget _buildSaveButton(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
+        child: FilledButton(
           onPressed: () => _submit(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
-          ),
-          child: const Text('SIMPAN',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          child: const Text('SIMPAN'),
         ),
       ),
     );
@@ -317,12 +292,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
     );
   }
 
-  Color _parseColor(String hex) {
+  Color _parseColor(String hex, Color fallback) {
     try {
       final cleaned = hex.replaceFirst('#', '');
       return Color(int.parse('FF$cleaned', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return fallback;
     }
   }
 }

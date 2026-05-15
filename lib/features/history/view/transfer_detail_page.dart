@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/database/daos/history_dao.dart';
 import '../../../core/database/daos/history_transfer_dao.dart';
 import '../../../core/models/history_model.dart';
@@ -76,22 +76,18 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          title: const Text('Detail Transfer',
-              style: TextStyle(color: Colors.white)),
-          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text('Detail Transfer'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.edit, color: Colors.white),
+              icon: const Icon(Icons.edit),
               onPressed: _transfer == null
                   ? null
                   : () => context.push(
                       '/history/transfer/${widget.transferId}/edit'),
             ),
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.white),
+              icon: const Icon(Icons.delete),
               onPressed: _transfer == null
                   ? null
                   : () => _confirmDelete(context),
@@ -120,11 +116,8 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cs.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 4)
-              ],
             ),
             child: Row(
               children: [
@@ -136,8 +129,8 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
                     const SizedBox(height: 4),
                     Text(
                       t.srcAccountName ?? '-',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.darkBlue),
+                      style: TextStyle(
+                          fontSize: 12, color: context.cs.onSurface),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -145,7 +138,7 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
                 ),
                 const Expanded(
                   child: Icon(Icons.arrow_forward,
-                      color: AppColors.transfer, size: 28),
+                      color: AppTheme.transfer, size: 28),
                 ),
                 Column(
                   children: [
@@ -155,8 +148,8 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
                     const SizedBox(height: 4),
                     Text(
                       t.destAccountName ?? '-',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.darkBlue),
+                      style: TextStyle(
+                          fontSize: 12, color: context.cs.onSurface),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -170,11 +163,8 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cs.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 4)
-              ],
             ),
             child: Column(
               children: [
@@ -197,11 +187,8 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cs.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 4)
-                ],
               ),
               child: Row(
                 children: [
@@ -214,22 +201,22 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'BIAYA TRANSFER',
+                        Text(
+                        'BIAYA TRANSFER',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGray,
+                            color: context.cs.onSurfaceVariant,
                             letterSpacing: 0.5,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           _fee!.accountName ?? '-',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkBlue,
+                            color: context.cs.onSurface,
                           ),
                         ),
                       ],
@@ -237,10 +224,10 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
                   ),
                   Text(
                     CurrencyFormatter.format(_fee!.amount),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.expense,
+                      color: AppTheme.expense,
                     ),
                   ),
                 ],
@@ -267,17 +254,17 @@ class _DetailRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkGray,
+              color: context.cs.onSurfaceVariant,
               letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(fontSize: 15, color: AppColors.darkBlue),
+            style: TextStyle(fontSize: 15, color: context.cs.onSurface),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/debt_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -52,17 +52,11 @@ class _DebtListBodyState extends State<_DebtListBody>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: Text(_title),
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
           tabs: const [
             Tab(text: 'Belum Lunas'),
             Tab(text: 'Lunas'),
@@ -180,15 +174,15 @@ class _DebtListItem extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.person_outline,
-                      color: AppColors.darkBlue, size: 20),
+                      size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       debt.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: AppColors.darkBlue),
+                          color: context.cs.onSurface),
                     ),
                   ),
                   if (overdue)
@@ -196,13 +190,13 @@ class _DebtListItem extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.dueDate.withOpacity(0.12),
+                          color: AppTheme.dueDate.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text('Jatuh Tempo',
+                      child: Text('Jatuh Tempo',
                           style: TextStyle(
                               fontSize: 11,
-                              color: AppColors.dueDate,
+                              color: AppTheme.dueDate,
                               fontWeight: FontWeight.bold)),
                     ),
                 ],
@@ -210,8 +204,8 @@ class _DebtListItem extends StatelessWidget {
               if (debt.note.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(debt.note,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.darkGray)),
+                    style: TextStyle(
+                        fontSize: 12, color: context.cs.onSurfaceVariant)),
               ],
               const SizedBox(height: 8),
               Row(
@@ -221,13 +215,12 @@ class _DebtListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('TERBAYAR',
-                            style: TextStyle(
-                                fontSize: 10, color: AppColors.darkGray)),
+                            style: TextStyle(fontSize: 10)),
                         Text(CurrencyFormatter.format(paid),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.income)),
+                                color: AppTheme.income)),
                       ],
                     ),
                   ),
@@ -236,13 +229,12 @@ class _DebtListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const Text('TOTAL',
-                            style: TextStyle(
-                                fontSize: 10, color: AppColors.darkGray)),
+                            style: TextStyle(fontSize: 10)),
                         Text(CurrencyFormatter.format(debt.amount),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.darkBlue)),
+                                color: context.cs.onSurface)),
                       ],
                     ),
                   ),
@@ -254,8 +246,8 @@ class _DebtListItem extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 6,
-                  backgroundColor: AppColors.divider,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.income),
+                  backgroundColor: context.cs.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation(AppTheme.income),
                 ),
               ),
               const SizedBox(height: 6),
@@ -268,14 +260,14 @@ class _DebtListItem extends StatelessWidget {
                         : 'Tanpa jatuh tempo',
                     style: TextStyle(
                         fontSize: 11,
-                        color: overdue ? AppColors.dueDate : AppColors.darkGray),
+                        color: overdue ? AppTheme.dueDate : context.cs.onSurfaceVariant),
                   ),
                   Text(
                     'Sisa: ${CurrencyFormatter.format(debt.remainingAmount)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.darkBlue),
+                        color: context.cs.onSurface),
                   ),
                 ],
               ),

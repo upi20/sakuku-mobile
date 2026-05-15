@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../bloc/report_bloc.dart';
 import '../bloc/report_event.dart';
@@ -196,10 +196,7 @@ class _ReportBodyState extends State<_ReportBody> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Laporan'),
         elevation: 0,
         actions: [
@@ -216,13 +213,12 @@ class _ReportBodyState extends State<_ReportBody> {
           children: [
             // Header navigasi
             Container(
-              color: Colors.white,
+              color: context.cs.surfaceContainerLowest,
               child: Row(
                 children: [
                   if (_canNavigate)
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: AppColors.darkBlue),
+                      icon: const Icon(Icons.arrow_back_ios),
                       onPressed: _prev,
                     )
                   else
@@ -231,16 +227,15 @@ class _ReportBodyState extends State<_ReportBody> {
                     child: Text(
                       _currentLabel,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue),
+                          color: context.cs.onSurface),
                     ),
                   ),
                   if (_canNavigate)
                     IconButton(
-                      icon: const Icon(Icons.arrow_forward_ios,
-                          color: AppColors.darkBlue),
+                      icon: const Icon(Icons.arrow_forward_ios),
                       onPressed: _next,
                     )
                   else
@@ -273,16 +268,16 @@ class _ReportBodyState extends State<_ReportBody> {
       children: [
         // Info banner: transfer tidak dihitung
         Container(
-          color: const Color(0xFFE3F2FD),
+          color: context.cs.primaryContainer,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.info_outline, color: Color(0xFF1565C0), size: 16),
-              SizedBox(width: 8),
+              Icon(Icons.info_outline, color: context.cs.onPrimaryContainer, size: 16),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Pengecualian data transfer antar rekening pada laporan',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF1565C0)),
+                  style: TextStyle(fontSize: 12, color: context.cs.onPrimaryContainer),
                 ),
               ),
             ],
@@ -290,7 +285,7 @@ class _ReportBodyState extends State<_ReportBody> {
         ),
         // Summary card
         Container(
-          color: Colors.white,
+          color: context.cs.surfaceContainerLowest,
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.only(bottom: 2),
           child: Column(
@@ -298,16 +293,16 @@ class _ReportBodyState extends State<_ReportBody> {
               _SummaryRow(
                   label: 'Pendapatan',
                   amount: state.totalIncome,
-                  color: AppColors.income),
+                  color: AppTheme.income),
               _SummaryRow(
                   label: 'Pengeluaran',
                   amount: state.totalExpense,
-                  color: AppColors.expense),
+                  color: AppTheme.expense),
               const Divider(height: 16),
               _SummaryRow(
                   label: 'Total',
                   amount: state.totalIncome - state.totalExpense,
-                  color: AppColors.primarySoft),
+                  color: context.cs.primary),
             ],
           ),
         ),
@@ -319,10 +314,9 @@ class _ReportBodyState extends State<_ReportBody> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.assessment_outlined,
-                      size: 64, color: AppColors.darkGray),
+                      size: 64),
                   SizedBox(height: 8),
-                  Text('Tidak ada laporan',
-                      style: TextStyle(color: AppColors.darkGray)),
+                  Text('Tidak ada laporan'),
                 ],
               ),
             ),
@@ -335,7 +329,7 @@ class _ReportBodyState extends State<_ReportBody> {
             endDate: _endDate,
             sign: '+',
             items: state.incomeItems,
-            chartColor: AppColors.income,
+            chartColor: AppTheme.income,
           ),
           const SizedBox(height: 8),
           _ChartSection(
@@ -344,21 +338,21 @@ class _ReportBodyState extends State<_ReportBody> {
             endDate: _endDate,
             sign: '-',
             items: state.expenseItems,
-            chartColor: AppColors.expense,
+            chartColor: AppTheme.expense,
           ),
           const SizedBox(height: 8),
           // Tombol ke laporan list
           Container(
-            color: Colors.white,
+            color: context.cs.surfaceContainerLowest,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Laporan List',
+                Text('Laporan List',
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.darkBlue)),
+                        color: context.cs.onSurface)),
                 const Divider(height: 16),
                 GestureDetector(
                   onTap: () {
@@ -373,12 +367,12 @@ class _ReportBodyState extends State<_ReportBody> {
                         'Lihat Detail',
                         style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.primarySoft,
+                            color: context.cs.primary,
                             fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(width: 4),
                       Icon(Icons.arrow_forward_ios,
-                          size: 12, color: AppColors.primarySoft),
+                          size: 12, color: context.cs.primary),
                     ],
                   ),
                 ),
@@ -408,8 +402,8 @@ class _SummaryRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label,
-              style:
-                  const TextStyle(fontSize: 14, color: AppColors.darkBlue)),
+              style: TextStyle(
+                  fontSize: 14, color: context.cs.onSurface)),
           Text(CurrencyFormatter.format(amount),
               style: TextStyle(
                   fontSize: 14,
@@ -441,16 +435,16 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue)),
+                  color: context.cs.onSurface)),
           const Divider(height: 16),
           // Donut chart
           if (items.isNotEmpty)
@@ -494,12 +488,12 @@ class _ChartSection extends StatelessWidget {
                   'Lihat Detail',
                   style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.primarySoft,
+                      color: context.cs.primary,
                       fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(width: 4),
                 Icon(Icons.arrow_forward_ios,
-                    size: 12, color: AppColors.primarySoft),
+                    size: 12, color: context.cs.primary),
               ],
             ),
           ),
@@ -534,8 +528,7 @@ class _FilterSheet extends StatelessWidget {
             'Filter Rentang Waktu',
             style: TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue),
+                fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -546,10 +539,6 @@ class _FilterSheet extends StatelessWidget {
               return ChoiceChip(
                 label: Text(label),
                 selected: mode == currentMode,
-                selectedColor: AppColors.primary,
-                labelStyle: TextStyle(
-                  color: mode == currentMode ? Colors.white : AppColors.darkBlue,
-                ),
                 onSelected: (_) => Navigator.pop(context, mode),
               );
             }).toList(),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/widgets/icon_color_picker_sheet.dart';
@@ -96,7 +96,7 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
       return Color(
           int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return const Color(0xFF2b6788);
     }
   }
 
@@ -110,16 +110,13 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.expense,
+
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
           title: const Text('Tambah Kategori'),
           elevation: 0,
         ),
@@ -146,7 +143,7 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
   Widget _buildCategoryCard() {
     final color = _parseColor(_selectedColor);
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +153,6 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -168,15 +164,12 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
                   controller: _nameController,
                   maxLength: 25,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.darkBlue),
+                      fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: 'Nama kategori',
                     counterText: '',
-                    filled: true,
-                    fillColor: AppColors.background,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 12),
@@ -207,7 +200,7 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
 
   Widget _buildTypeCard() {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,7 +210,6 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -228,7 +220,7 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
                 child: _TypeButton(
                   label: 'Pendapatan',
                   selected: _sign == '+',
-                  color: AppColors.income,
+                  color: AppTheme.income,
                   onTap: () => setState(() => _sign = '+'),
                 ),
               ),
@@ -237,7 +229,7 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
                 child: _TypeButton(
                   label: 'Pengeluaran',
                   selected: _sign == '-',
-                  color: AppColors.expense,
+                  color: AppTheme.expense,
                   onTap: () => setState(() => _sign = '-'),
                 ),
               ),
@@ -250,15 +242,13 @@ class _AddCategoryBodyState extends State<_AddCategoryBody> {
 
   Widget _buildSaveButton() {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
+        child: FilledButton(
           onPressed: _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+          style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8)),
@@ -293,10 +283,10 @@ class _TypeButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? color.withAlpha(30) : AppColors.background,
+          color: selected ? color.withAlpha(30) : context.cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected ? color : AppColors.divider,
+            color: selected ? color : context.cs.outlineVariant,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -304,7 +294,7 @@ class _TypeButton extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: selected ? color : AppColors.darkGray,
+              color: selected ? color : context.cs.onSurfaceVariant,
               fontWeight:
                   selected ? FontWeight.bold : FontWeight.normal,
               fontSize: 14,

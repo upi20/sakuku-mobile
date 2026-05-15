@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -57,24 +57,18 @@ class _CategoryBodyState extends State<_CategoryBody>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.expense,
+
             ),
           );
         }
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
             title: const Text('Kategori'),
             elevation: 0,
             bottom: TabBar(
               controller: _tabController,
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
               tabs: const [
                 Tab(text: 'Pendapatan'),
                 Tab(text: 'Pengeluaran'),
@@ -121,7 +115,7 @@ class _CategoryList extends StatelessWidget {
       return Color(
           int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return const Color(0xFF2b6788);
     }
   }
 
@@ -148,7 +142,7 @@ class _CategoryList extends StatelessWidget {
             }
           }),
           child: Container(
-            color: Colors.white,
+            color: context.cs.surfaceContainerLowest,
             padding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             margin: const EdgeInsets.only(bottom: 1),
@@ -171,16 +165,14 @@ class _CategoryList extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       color: cat.active == 1
-                          ? AppColors.darkBlue
-                          : AppColors.darkGray,
+                          ? context.cs.onSurface
+                          : context.cs.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 Switch(
                   value: cat.active == 1,
-                  activeThumbColor: AppColors.primary,
-                  activeTrackColor: AppColors.primary.withAlpha(100),
                   onChanged: (_) {
                     context
                         .read<CategoryBloc>()

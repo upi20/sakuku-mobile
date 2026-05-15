@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/models/account_model.dart';
 import '../../../shared/utils/thousands_formatter.dart';
@@ -76,18 +76,12 @@ class _AddAccountBodyState extends State<_AddAccountBody> {
           context.pop();
         } else if (state is AccountError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.expense,
-            ),
+            SnackBar(content: Text(state.message)),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
           title: const Text('Tambah Rekening'),
           elevation: 0,
         ),
@@ -98,37 +92,36 @@ class _AddAccountBodyState extends State<_AddAccountBody> {
                 child: Column(
                   children: [
                     // Card: Nama rekening + icon picker
-                    _buildAccountCard(),
+                    _buildAccountCard(context),
                     const SizedBox(height: 8),
                     // Card: Saldo awal
-                    _buildInitialCard(),
+                    _buildInitialCard(context),
                   ],
                 ),
               ),
             ),
             // Bottom save button
-            _buildSaveButton(),
+            _buildSaveButton(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAccountCard() {
-    final color = _parseColor(_selectedColor);
+  Widget _buildAccountCard(BuildContext context) {
+    final color = _parseColor(_selectedColor, context.cs.primary);
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'REKENING',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
-              letterSpacing: 0.5,
+            style: context.tt.labelSmall?.copyWith(
+              color: context.cs.primary,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
             ),
           ),
           const SizedBox(height: 8),
@@ -138,19 +131,10 @@ class _AddAccountBodyState extends State<_AddAccountBody> {
                 child: TextField(
                   controller: _nameController,
                   maxLength: 25,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.darkBlue),
-                  decoration: InputDecoration(
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(
                     hintText: 'Nama rekening',
                     counterText: '',
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
                   ),
                 ),
               ),
@@ -180,48 +164,36 @@ class _AddAccountBodyState extends State<_AddAccountBody> {
     );
   }
 
-  Widget _buildInitialCard() {
+  Widget _buildInitialCard(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'SALDO AWAL',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
-              letterSpacing: 0.5,
+            style: context.tt.labelSmall?.copyWith(
+              color: context.cs.primary,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
             ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Text('Rp',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue)),
+              Text('Rp',
+                  style: context.tt.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold)),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: _initialController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [ThousandsInputFormatter()],
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.darkBlue),
-                  decoration: InputDecoration(
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(
                     hintText: '0',
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
                   ),
                 ),
               ),
@@ -232,23 +204,15 @@ class _AddAccountBodyState extends State<_AddAccountBody> {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
+        child: FilledButton(
           onPressed: _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
-          ),
-          child: const Text('SIMPAN',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          child: const Text('SIMPAN'),
         ),
       ),
     );
@@ -274,12 +238,12 @@ class _AddAccountBodyState extends State<_AddAccountBody> {
     );
   }
 
-  Color _parseColor(String hex) {
+  Color _parseColor(String hex, Color fallback) {
     try {
       final cleaned = hex.replaceFirst('#', '');
       return Color(int.parse('FF$cleaned', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return fallback;
     }
   }
 }

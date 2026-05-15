@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
+import '../bloc/theme_cubit.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   Future<void> _shareApp(BuildContext context) async {
-    await Share.share(
-      'DompetKu — Aplikasi pencatatan keuangan pribadi. Download sekarang!',
-    );
+    await Share.shareUri(Uri.parse('https://play.google.com/store/apps'));
   }
 
   Future<void> _openStoreListing() async {
-    // Ganti dengan link store yang sesuai saat publish
     final uri = Uri.parse('https://play.google.com/store/apps');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -24,115 +23,120 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Pengaturan'),
-        elevation: 0,
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          // Kelola Data
+          // ── Tampilan ──────────────────────────────────────────────────
+          _SectionHeader(label: 'Tampilan'),
+          _ThemeToggleTile(),
+
+          // ── Kelola Data ───────────────────────────────────────────────
           _SectionHeader(label: 'Kelola Data'),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.account_balance_wallet_outlined,
             label: 'Rekening',
             onTap: () => context.push('/settings/account'),
           ),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.category_outlined,
             label: 'Kategori',
             onTap: () => context.push('/settings/category'),
           ),
-          _SettingsItem(
-            icon: Icons.balance,
+          _SettingsTile(
+            icon: Icons.balance_outlined,
             label: 'Balancing',
             onTap: () => context.push('/settings/balancing'),
           ),
 
-          // Keamanan
+          // ── Keamanan ──────────────────────────────────────────────────
           _SectionHeader(label: 'Keamanan'),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.pin_outlined,
             label: 'PIN',
             onTap: () => context.push('/settings/pin'),
           ),
 
-          // Data
+          // ── Data ──────────────────────────────────────────────────────
           _SectionHeader(label: 'Data'),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.upload_file_outlined,
             label: 'Ekspor Excel',
             onTap: () => context.push('/settings/export'),
           ),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.backup_outlined,
             label: 'Backup & Restore',
             onTap: () => context.push('/settings/backup'),
           ),
 
-          // Lainnya
+          // ── Lainnya ───────────────────────────────────────────────────
           _SectionHeader(label: 'Lainnya'),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.share_outlined,
             label: 'Bagikan Aplikasi',
             onTap: () => _shareApp(context),
           ),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.star_outline,
             label: 'Beri Penilaian',
             onTap: _openStoreListing,
           ),
-          _SettingsItem(
+          _SettingsTile(
             icon: Icons.info_outline,
             label: 'Info Aplikasi',
             onTap: () => context.push('/settings/info'),
           ),
+
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
 }
 
-class _SettingsItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
+// ── Dark mode toggle ──────────────────────────────────────────────────────────
 
-  const _SettingsItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+class _ThemeToggleTile extends StatelessWidget {
+  const _ThemeToggleTile();
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.primarySoft, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: AppColors.darkBlue,
-                ),
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, mode) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('Terang'),
+                icon: Icon(Icons.light_mode_outlined),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.darkBlue),
-          ],
-        ),
-      ),
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('Sistem'),
+                icon: Icon(Icons.brightness_auto_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('Gelap'),
+                icon: Icon(Icons.dark_mode_outlined),
+              ),
+            ],
+            selected: {mode},
+            onSelectionChanged: (s) =>
+                context.read<ThemeCubit>().setTheme(s.first),
+          ),
+        );
+      },
     );
   }
 }
+
+// ── Section header ────────────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
   final String label;
@@ -144,14 +148,36 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: AppColors.darkGray,
-          letterSpacing: 0.8,
+        style: context.tt.labelSmall?.copyWith(
+          color: context.cs.primary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
         ),
       ),
     );
   }
 }
 
+// ── Settings tile ─────────────────────────────────────────────────────────────
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: onTap,
+    );
+  }
+}

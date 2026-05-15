@@ -2,8 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../bloc/report_bloc.dart';
@@ -224,10 +224,7 @@ class _ReportByCategoryBodyState extends State<_ReportByCategoryBody> {
   Widget build(BuildContext context) {
     final title = _sign == '+' ? 'Laporan Pendapatan' : 'Laporan Pengeluaran';
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: Text(title),
         elevation: 0,
         actions: [
@@ -241,13 +238,12 @@ class _ReportByCategoryBodyState extends State<_ReportByCategoryBody> {
       body: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: context.cs.surfaceContainerLowest,
             child: Row(
               children: [
                 if (_canNavigate)
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios,
-                        color: AppColors.darkBlue),
+                    icon: const Icon(Icons.arrow_back_ios),
                     onPressed: _prev,
                   )
                 else
@@ -256,16 +252,15 @@ class _ReportByCategoryBodyState extends State<_ReportByCategoryBody> {
                   child: Text(
                     _currentLabel,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.darkBlue),
+                        color: context.cs.onSurface),
                   ),
                 ),
                 if (_canNavigate)
                   IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios,
-                        color: AppColors.darkBlue),
+                    icon: const Icon(Icons.arrow_forward_ios),
                     onPressed: _next,
                   )
                 else
@@ -302,12 +297,12 @@ class _ReportByCategoryBodyState extends State<_ReportByCategoryBody> {
       );
     }
 
-    final amountColor = _sign == '+' ? AppColors.income : AppColors.expense;
+    final amountColor = _sign == '+' ? AppTheme.income : AppTheme.expense;
 
     return ListView(
       children: [
         Container(
-          color: Colors.white,
+          color: context.cs.surfaceContainerLowest,
           padding: const EdgeInsets.symmetric(vertical: 16),
           margin: const EdgeInsets.only(bottom: 2),
           child: Column(
@@ -338,7 +333,7 @@ class _ReportByCategoryBodyState extends State<_ReportByCategoryBody> {
               ),
               const SizedBox(height: 8),
               const Text('Total',
-                  style: TextStyle(fontSize: 12, color: AppColors.darkGray)),
+                  style: TextStyle(fontSize: 12)),
               Text(
                 CurrencyFormatter.format(state.total),
                 style: TextStyle(
@@ -381,7 +376,7 @@ class _CategoryReportItem extends StatelessWidget {
       final hex = item.categoryColor.replaceFirst('#', '');
       iconColor = Color(int.parse('FF$hex', radix: 16));
     } catch (_) {
-      iconColor = AppColors.darkGray;
+      iconColor = context.cs.onSurfaceVariant;
     }
 
     final pct = (item.percentage * 100).toStringAsFixed(1);
@@ -398,7 +393,7 @@ class _CategoryReportItem extends StatelessWidget {
         );
       },
       child: Container(
-        color: Colors.white,
+        color: context.cs.surfaceContainerLowest,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         margin: const EdgeInsets.only(bottom: 1),
         child: Row(
@@ -426,10 +421,10 @@ class _CategoryReportItem extends StatelessWidget {
                           item.categoryName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.darkBlue),
+                              color: context.cs.onSurface),
                         ),
                       ),
                       Text(
@@ -443,11 +438,11 @@ class _CategoryReportItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('$pct%',
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.darkGray)),
+                          style: TextStyle(
+                              fontSize: 11, color: context.cs.onSurfaceVariant)),
                       Text('${item.totalCount}x',
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.darkGray)),
+                          style: TextStyle(
+                              fontSize: 11, color: context.cs.onSurfaceVariant)),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -456,7 +451,7 @@ class _CategoryReportItem extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: item.percentage.clamp(0.0, 1.0),
                       minHeight: 4,
-                      backgroundColor: AppColors.divider,
+                      backgroundColor: context.cs.surfaceContainerHighest,
                       valueColor: AlwaysStoppedAnimation(amountColor),
                     ),
                   ),
@@ -464,7 +459,7 @@ class _CategoryReportItem extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: AppColors.darkGray, size: 18),
+            const Icon(Icons.chevron_right, size: 18),
           ],
         ),
       ),
@@ -495,8 +490,7 @@ class _FilterSheet extends StatelessWidget {
           const Text('Filter Rentang Waktu',
               style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkBlue)),
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -506,11 +500,6 @@ class _FilterSheet extends StatelessWidget {
               return ChoiceChip(
                 label: Text(label),
                 selected: mode == currentMode,
-                selectedColor: AppColors.primary,
-                labelStyle: TextStyle(
-                  color:
-                      mode == currentMode ? Colors.white : AppColors.darkBlue,
-                ),
                 onSelected: (_) => Navigator.pop(context, mode),
               );
             }).toList(),

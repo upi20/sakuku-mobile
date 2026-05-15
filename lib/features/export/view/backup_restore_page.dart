@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 
@@ -136,10 +136,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Backup & Restore'),
         elevation: 0,
       ),
@@ -152,16 +149,14 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
+                    color: context.cs.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.info_outline,
-                          color: AppColors.primary, size: 18),
+                      Icon(Icons.info_outline,
+                          color: context.cs.onPrimaryContainer, size: 18),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -169,7 +164,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                           'File backup berformat .db dan dapat dipulihkan kapan saja.',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.primary.withValues(alpha: 0.85),
+                            color: context.cs.onPrimaryContainer,
                           ),
                         ),
                       ),
@@ -187,23 +182,18 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.income.withValues(alpha: 0.12),
+                        color: AppTheme.income.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.backup_outlined,
-                          color: AppColors.income),
+                          color: AppTheme.income),
                     ),
                     title: const Text('Cadangkan',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.darkBlue)),
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: const Text(
                       'Ekspor file .db ke penyimpanan / share',
-                      style:
-                          TextStyle(fontSize: 12, color: AppColors.darkGray),
                     ),
-                    trailing: const Icon(Icons.chevron_right,
-                        color: AppColors.darkGray),
+                    trailing: const Icon(Icons.chevron_right),
                     onTap: _backup,
                   ),
                 ),
@@ -218,23 +208,18 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.expense.withValues(alpha: 0.12),
+                        color: context.cs.errorContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.restore_outlined,
-                          color: AppColors.expense),
+                      child: Icon(Icons.restore_outlined,
+                          color: context.cs.error),
                     ),
                     title: const Text('Pulihkan',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.darkBlue)),
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: const Text(
                       'Pilih file .db backup untuk memulihkan data',
-                      style:
-                          TextStyle(fontSize: 12, color: AppColors.darkGray),
                     ),
-                    trailing: const Icon(Icons.chevron_right,
-                        color: AppColors.darkGray),
+                    trailing: const Icon(Icons.chevron_right),
                     onTap: _restore,
                   ),
                 ),
@@ -244,16 +229,14 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.expense.withValues(alpha: 0.06),
+                    color: context.cs.errorContainer,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: AppColors.expense.withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.warning_amber_outlined,
-                          color: AppColors.expense.withValues(alpha: 0.8),
+                          color: context.cs.error,
                           size: 18),
                       const SizedBox(width: 10),
                       Expanded(
@@ -262,7 +245,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                           'dan tidak dapat dibatalkan.',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.expense.withValues(alpha: 0.8),
+                            color: context.cs.onErrorContainer,
                           ),
                         ),
                       ),

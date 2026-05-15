@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/history_model.dart';
 import '../../../core/repositories/interfaces/i_history_repository.dart';
 import '../../../shared/widgets/colored_icon.dart';
@@ -45,15 +45,12 @@ class _HistoryDetailPageState extends State<HistoryDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text('Detail Transaksi', style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Detail Transaksi'),
         actions: _item != null && _item!.type == 1
             ? [
                 IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white),
+                  icon: const Icon(Icons.edit),
                   onPressed: () async {
                     final bloc = context.read<HistoryBloc>();
                     await context.push('/history/${_item!.id}/edit');
@@ -64,7 +61,7 @@ class _HistoryDetailPageState extends State<HistoryDetailPage> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.white),
+                  icon: const Icon(Icons.delete),
                   onPressed: _confirmDelete,
                 ),
               ]
@@ -98,7 +95,6 @@ class _HistoryDetailPageState extends State<HistoryDetailPage> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -152,9 +148,8 @@ class _DetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
       ),
       child: Column(children: children),
     );
@@ -178,14 +173,13 @@ class _DetailRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkGray,
               letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(fontSize: 15, color: AppColors.darkBlue),
+            style: const TextStyle(fontSize: 15),
           ),
         ],
       ),

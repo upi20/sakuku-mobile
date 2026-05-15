@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../bloc/pin_bloc.dart';
 import '../bloc/pin_event.dart';
@@ -29,10 +29,7 @@ class _ConfigPinBody extends StatelessWidget {
       listener: (context, state) {
         if (state is PinRemoveSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('PIN berhasil dihapus'),
-              backgroundColor: AppColors.income,
-            ),
+            const SnackBar(content: Text('PIN berhasil dihapus')),
           );
           // Reload
           context.read<PinBloc>().add(const PinLoad());
@@ -49,10 +46,7 @@ class _ConfigPinBody extends StatelessWidget {
           }
         } else if (state is PinError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.expense,
-            ),
+            SnackBar(content: Text(state.message)),
           );
         }
       },
@@ -65,10 +59,7 @@ class _ConfigPinBody extends StatelessWidget {
         }
 
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
             title: const Text('Keamanan PIN'),
             elevation: 0,
           ),
@@ -104,18 +95,13 @@ class _ConfigPinBody extends StatelessWidget {
                         },
                         title: const Text(
                           'Aktifkan PIN',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.darkBlue),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
                           isEnabled
                               ? 'PIN aktif — app terkunci saat dibuka'
                               : 'PIN tidak aktif',
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.darkGray),
                         ),
-                        activeThumbColor: AppColors.primary,
                       ),
                     ),
 
@@ -126,16 +112,12 @@ class _ConfigPinBody extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         child: ListTile(
-                          leading: const Icon(Icons.edit_outlined,
-                              color: AppColors.primary),
+                          leading: const Icon(Icons.edit_outlined),
                           title: const Text(
                             'Ganti PIN',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.darkBlue),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          trailing: const Icon(Icons.chevron_right,
-                              color: AppColors.darkGray),
+                          trailing: const Icon(Icons.chevron_right),
                           onTap: () {
                             context.push('/pin/set?change=1').then((_) {
                               if (context.mounted) {
@@ -154,13 +136,13 @@ class _ConfigPinBody extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         child: ListTile(
-                          leading: const Icon(Icons.delete_outline,
-                              color: AppColors.expense),
-                          title: const Text(
+                          leading: Icon(Icons.delete_outline,
+                              color: context.cs.error),
+                          title: Text(
                             'Hapus PIN',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.expense),
+                                color: context.cs.error),
                           ),
                           onTap: () {
                             ConfirmDialog.show(

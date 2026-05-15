@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/pin_service.dart';
 import '../bloc/pin_bloc.dart';
 import '../bloc/pin_event.dart';
@@ -87,29 +87,29 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
         } else if (state is PinCheckFailure) {
           _reset(shake: true);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('PIN salah, coba lagi'),
-              backgroundColor: AppColors.expense,
-              duration: Duration(seconds: 1),
+            SnackBar(
+              content: const Text('PIN salah, coba lagi'),
+              backgroundColor: context.cs.error,
+              duration: const Duration(seconds: 1),
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
+        backgroundColor: context.cs.primary,
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
                 onTap: _onLogoTap,
-                child: const Icon(Icons.lock_outline, color: Colors.white, size: 48),
+                child: Icon(Icons.lock_outline, color: context.cs.onPrimary, size: 48),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Masukkan PIN',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.cs.onPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -132,9 +132,9 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: filled
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.3),
-                        border: Border.all(color: Colors.white, width: 2),
+                            ? context.cs.onPrimary
+                            : context.cs.onPrimary.withValues(alpha: 0.3),
+                        border: Border.all(color: context.cs.onPrimary, width: 2),
                       ),
                     );
                   }),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../shared/widgets/colored_icon.dart';
 
@@ -51,16 +51,16 @@ class DebtAccountSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('REKENING',
+          Text('REKENING',
               style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkGray)),
+                  color: context.cs.onSurfaceVariant)),
           const SizedBox(height: 6),
           GestureDetector(
             onTap: () async {
@@ -74,7 +74,7 @@ class DebtAccountSection extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(color: context.cs.outlineVariant),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -95,12 +95,12 @@ class DebtAccountSection extends StatelessWidget {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: selected != null
-                              ? AppColors.darkBlue
-                              : AppColors.disabled),
+                              ? context.cs.onSurface
+                              : context.cs.onSurfaceVariant),
                     ),
                   ),
-                  const Icon(Icons.arrow_drop_down,
-                      color: AppColors.darkGray),
+                  Icon(Icons.arrow_drop_down,
+                      color: context.cs.onSurfaceVariant),
                 ],
               ),
             ),
@@ -128,8 +128,8 @@ class DebtAccountPicker extends StatelessWidget {
             backgroundColor: ColoredIcon.parseColor(acc.color),
           ),
           title: Text(acc.name,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: context.cs.onSurface)),
           onTap: () => Navigator.of(context).pop(acc),
         );
       },
@@ -145,16 +145,16 @@ class DebtFormCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkGray)),
+                  color: context.cs.onSurfaceVariant)),
           const SizedBox(height: 6),
           child,
         ],
@@ -181,18 +181,18 @@ class DebtDateButton extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.divider),
+          border: Border.all(color: context.cs.outlineVariant),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: AppColors.darkBlue),
+            Icon(icon, size: 16, color: context.cs.onSurface),
             const SizedBox(width: 6),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue,
+                    color: context.cs.onSurface,
                     fontSize: 13)),
           ],
         ),
@@ -232,7 +232,7 @@ class DebtDateSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,8 +240,7 @@ class DebtDateSection extends StatelessWidget {
           const Text('TANGGAL MULAI',
               style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkGray)),
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           Row(
             children: [
@@ -266,14 +265,13 @@ class DebtDateSection extends StatelessWidget {
               const Text('JATUH TEMPO (OPSIONAL)',
                   style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkGray)),
+                      fontWeight: FontWeight.bold)),
               if (endDate != null) ...[
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: onClearEnd,
-                  child: const Icon(Icons.clear,
-                      size: 16, color: AppColors.darkGray),
+                  child: Icon(Icons.clear,
+                      size: 16, color: context.cs.onSurfaceVariant),
                 ),
               ],
             ],

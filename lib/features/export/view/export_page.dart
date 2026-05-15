@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/database/daos/history_dao.dart';
 import '../../../core/models/history_model.dart';
-import '../../../shared/utils/currency_formatter.dart';
 
 enum _ExportFormat { excel, csv }
 
@@ -116,7 +115,7 @@ class _ExportPageState extends State<ExportPage> {
     }
 
     final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/dompetku_${start}_${end}.xlsx';
+    final path = '${dir.path}/dompetku_${start}_$end.xlsx';
     final bytes = excel.encode();
     if (bytes == null) throw Exception('Gagal encode file Excel');
     final file = File(path);
@@ -135,7 +134,7 @@ class _ExportPageState extends State<ExportPage> {
       );
     }
     final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/dompetku_${start}_${end}.csv';
+    final path = '${dir.path}/dompetku_${start}_$end.csv';
     final file = File(path);
     await file.writeAsString(buf.toString());
     return file;
@@ -193,10 +192,7 @@ class _ExportPageState extends State<ExportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Ekspor Data'),
         elevation: 0,
       ),
@@ -205,62 +201,38 @@ class _ExportPageState extends State<ExportPage> {
         children: [
           // Format
           _SectionLabel(label: 'Format File'),
-          Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
-            child: Column(
-              children: [
-                RadioListTile<_ExportFormat>(
-                  value: _ExportFormat.excel,
-                  groupValue: _format,
-                  onChanged: (v) => setState(() => _format = v!),
-                  title: const Text('Excel (.xlsx)',
-                      style: TextStyle(color: AppColors.darkBlue)),
-                  subtitle: const Text('Buka dengan Microsoft Excel / Google Sheets',
-                      style: TextStyle(fontSize: 12, color: AppColors.darkGray)),
-                  activeColor: AppColors.primary,
-                ),
-                const Divider(height: 1, indent: 16),
-                RadioListTile<_ExportFormat>(
-                  value: _ExportFormat.csv,
-                  groupValue: _format,
-                  onChanged: (v) => setState(() => _format = v!),
-                  title: const Text('CSV (.csv)',
-                      style: TextStyle(color: AppColors.darkBlue)),
-                  subtitle: const Text('Kompatibel dengan semua spreadsheet',
-                      style: TextStyle(fontSize: 12, color: AppColors.darkGray)),
-                  activeColor: AppColors.primary,
-                ),
-              ],
-            ),
+          const SizedBox(height: 8),
+          SegmentedButton<_ExportFormat>(
+            segments: const [
+              ButtonSegment(
+                value: _ExportFormat.excel,
+                label: Text('Excel (.xlsx)'),
+                icon: Icon(Icons.table_chart_outlined),
+              ),
+              ButtonSegment(
+                value: _ExportFormat.csv,
+                label: Text('CSV (.csv)'),
+                icon: Icon(Icons.text_fields_outlined),
+              ),
+            ],
+            selected: {_format},
+            onSelectionChanged: (s) => setState(() => _format = s.first),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // Rentang waktu
           _SectionLabel(label: 'Rentang Waktu'),
-          Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
-            child: Column(
-              children: [
-                ..._ExportRange.values.map((r) {
-                  return Column(
-                    children: [
-                      RadioListTile<_ExportRange>(
-                        value: r,
-                        groupValue: _range,
-                        onChanged: (v) => setState(() => _range = v!),
-                        title: Text(_rangeLabel(r),
-                            style: const TextStyle(color: AppColors.darkBlue)),
-                        activeColor: AppColors.primary,
-                      ),
-                      if (r != _ExportRange.values.last)
-                        const Divider(height: 1, indent: 16),
-                    ],
-                  );
-                }),
-              ],
-            ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _ExportRange.values.map((r) {
+              return ChoiceChip(
+                label: Text(_rangeLabel(r)),
+                selected: _range == r,
+                onSelected: (_) => setState(() => _range = r),
+              );
+            }).toList(),
           ),
 
           // Custom date picker
@@ -290,25 +262,17 @@ class _ExportPageState extends State<ExportPage> {
           const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: FilledButton.icon(
               onPressed: _loading ? null : _doExport,
               icon: _loading
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.file_download_outlined),
               label:
                   Text(_loading ? 'Sedang mengekspor...' : 'Ekspor & Bagikan'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
             ),
           ),
         ],
@@ -340,11 +304,10 @@ class _SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: AppColors.darkGray,
-          letterSpacing: 0.8,
+        style: context.tt.labelSmall?.copyWith(
+          color: context.cs.primary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
         ),
       ),
     );
@@ -370,22 +333,21 @@ class _DateButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cs.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.divider),
+          border: Border.all(color: context.cs.outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.darkGray)),
+                style: context.tt.labelSmall?.copyWith(
+                    color: context.cs.onSurfaceVariant)),
             const SizedBox(height: 4),
             Text(value,
-                style: const TextStyle(
-                    fontSize: 14,
+                style: context.tt.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue)),
+                    color: context.cs.onSurface)),
           ],
         ),
       ),
@@ -393,6 +355,4 @@ class _DateButton extends StatelessWidget {
   }
 }
 
-// Suppress unused import warning — CurrencyFormatter imported for future use
-// ignore: unused_import
-final _unused = CurrencyFormatter;
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_theme.dart';
 
 /// Shows an AlertDialog with a title, optional message, and Yes/No actions.
 class ConfirmDialog extends StatelessWidget {
@@ -54,7 +55,7 @@ class ConfirmDialog extends StatelessWidget {
           },
           child: Text(
             confirmLabel,
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(color: context.cs.error),
           ),
         ),
       ],

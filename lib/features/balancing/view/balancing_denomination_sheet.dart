@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 
 class BalancingDenominationSheet extends StatefulWidget {
@@ -73,34 +73,20 @@ class _BalancingDenominationSheetState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 10, bottom: 4),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.divider,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
           // Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Hitung Pecahan Uang Tunai',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue,
-                    ),
+                    style: context.tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.darkGray),
+                  icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -134,10 +120,7 @@ class _BalancingDenominationSheetState
                         flex: 3,
                         child: Text(
                           CurrencyFormatter.format(denom.toDouble()),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.darkBlue,
-                          ),
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ),
 
@@ -177,15 +160,10 @@ class _BalancingDenominationSheetState
                                 contentPadding: EdgeInsets.symmetric(
                                     horizontal: 4, vertical: 8),
                                 border: OutlineInputBorder(),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: AppColors.primary, width: 1.5),
-                                ),
                               ),
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.darkBlue,
                               ),
                             ),
                           ),
@@ -206,8 +184,8 @@ class _BalancingDenominationSheetState
                           style: TextStyle(
                             fontSize: 13,
                             color: subTotal > 0
-                                ? AppColors.income
-                                : AppColors.darkGray,
+                                ? AppTheme.income
+                                : context.cs.onSurfaceVariant,
                             fontWeight: subTotal > 0
                                 ? FontWeight.bold
                                 : FontWeight.normal,
@@ -231,20 +209,17 @@ class _BalancingDenominationSheetState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Total',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkBlue,
-                      ),
+                      style: context.tt.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold),
                     ),
                     Text(
                       CurrencyFormatter.format(_total),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        color: context.cs.primary,
                       ),
                     ),
                   ],
@@ -252,20 +227,12 @@ class _BalancingDenominationSheetState
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: FilledButton(
                     onPressed: () {
                       widget.onUse(_total);
                       Navigator.pop(context);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text('Gunakan Nilai Ini',
-                        style: TextStyle(fontSize: 15)),
+                    child: const Text('Gunakan Nilai Ini'),
                   ),
                 ),
               ],
@@ -294,14 +261,16 @@ class _StepButton extends StatelessWidget {
         height: 28,
         decoration: BoxDecoration(
           color: enabled
-              ? AppColors.primary.withValues(alpha: 0.1)
-              : AppColors.divider,
+              ? context.cs.primaryContainer
+              : context.cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Icon(
           icon,
           size: 16,
-          color: enabled ? AppColors.primary : AppColors.disabled,
+          color: enabled
+              ? context.cs.onPrimaryContainer
+              : context.cs.onSurfaceVariant.withValues(alpha: 0.38),
         ),
       ),
     );

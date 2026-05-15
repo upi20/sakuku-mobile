@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/app_theme.dart';
 import '../utils/currency_formatter.dart';
 
 /// Displays a formatted currency amount colored by sign/type.
@@ -21,9 +21,9 @@ class AmountText extends StatelessWidget {
   });
 
   Color get _color {
-    if (type == 2 || type == 4) return AppColors.transfer;
-    if (sign == '+') return AppColors.income;
-    return AppColors.expense;
+    if (type == 2 || type == 4) return AppTheme.transfer;
+    if (sign == '+') return AppTheme.income;
+    return AppTheme.expense;
   }
 
   String get _prefix {

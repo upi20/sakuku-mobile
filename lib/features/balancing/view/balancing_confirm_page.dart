@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
 import '../bloc/balancing_bloc.dart';
@@ -48,7 +48,6 @@ class _BalancingConfirmPageState extends State<BalancingConfirmPage> {
           messenger.showSnackBar(
             const SnackBar(
               content: Text('Balancing berhasil disimpan'),
-              backgroundColor: AppColors.success,
             ),
           );
         } else if (state is BalancingError) {
@@ -56,16 +55,13 @@ class _BalancingConfirmPageState extends State<BalancingConfirmPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.expense,
+              backgroundColor: context.cs.error,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
           title: const Text('Konfirmasi  (Langkah 3 dari 3)'),
           elevation: 0,
         ),
@@ -148,30 +144,18 @@ class _BalancingConfirmPageState extends State<BalancingConfirmPage> {
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                     child: SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: FilledButton(
                         onPressed: (_isSaving ||
                                 state.balancingAccountId == null)
                             ? null
                             : () => _save(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: AppColors.divider,
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
                         child: _isSaving
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text('Simpan',
-                                style: TextStyle(fontSize: 15)),
+                            : const Text('Simpan'),
                       ),
                     ),
                   ),
@@ -211,14 +195,12 @@ class _SectionHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title,
-            style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue)),
+            style: context.tt.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold)),
         if (subtitle != null)
           Text(subtitle!,
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.darkGray)),
+              style: context.tt.bodySmall?.copyWith(
+                  color: context.cs.onSurfaceVariant)),
       ],
     );
   }
@@ -241,8 +223,8 @@ class _AccountDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: AppColors.divider),
+        color: context.cs.surfaceContainerLowest,
+        border: Border.all(color: context.cs.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -250,8 +232,8 @@ class _AccountDropdown extends StatelessWidget {
         child: DropdownButton<int>(
           value: selectedId,
           isExpanded: true,
-          hint: const Text('Pilih rekening balancing',
-              style: TextStyle(color: AppColors.darkGray, fontSize: 14)),
+          hint: Text('Pilih rekening balancing',
+              style: TextStyle(color: context.cs.onSurfaceVariant, fontSize: 14)),
           items: items.map((item) {
             return DropdownMenuItem<int>(
               value: item.account.id,
@@ -266,8 +248,7 @@ class _AccountDropdown extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(item.account.name,
-                      style: const TextStyle(
-                          fontSize: 14, color: AppColors.darkBlue)),
+                      style: const TextStyle(fontSize: 14)),
                 ],
               ),
             );
@@ -309,32 +290,30 @@ class _TransferPreviewTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(srcName,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.darkBlue,
+                      style: context.tt.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600)),
                   Row(
-                    children: const [
+                    children: [
                       Icon(Icons.arrow_downward,
-                          size: 14, color: AppColors.primary),
-                      SizedBox(width: 2),
+                          size: 14, color: context.cs.primary),
+                      const SizedBox(width: 2),
                       Text('ke',
-                          style: TextStyle(
-                              fontSize: 11, color: AppColors.darkGray)),
+                          style: context.tt.bodySmall?.copyWith(
+                              color: context.cs.onSurfaceVariant)),
                     ],
                   ),
                   Text(destName,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.darkBlue,
+                      style: context.tt.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
             Text(
               CurrencyFormatter.format(amount),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.expense,
+                color: AppTheme.transfer,
               ),
             ),
           ],
@@ -366,22 +345,21 @@ class _BulkPreviewTile extends StatelessWidget {
                 children: [
                   Text(
                     entry.note.isEmpty ? '(tanpa catatan)' : entry.note,
-                    style: const TextStyle(
-                        fontSize: 13, color: AppColors.darkBlue),
+                    style: context.tt.bodyMedium,
                   ),
                   if (entry.categoryName.isNotEmpty)
                     Text(entry.categoryName,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.darkGray)),
+                        style: context.tt.bodySmall?.copyWith(
+                            color: context.cs.onSurfaceVariant)),
                 ],
               ),
             ),
             Text(
               CurrencyFormatter.format(entry.amount),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.expense,
+                color: AppTheme.expense,
               ),
             ),
           ],
@@ -403,10 +381,8 @@ class _TotalSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.06),
+        color: context.cs.primaryContainer,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
@@ -414,15 +390,15 @@ class _TotalSummaryCard extends StatelessWidget {
               label: 'Total Selisih',
               value: CurrencyFormatter.format(state.totalSelisih),
               color: state.totalSelisih < 0
-                  ? AppColors.expense
+                  ? AppTheme.expense
                   : state.totalSelisih > 0
-                      ? AppColors.income
-                      : AppColors.darkGray),
+                      ? AppTheme.income
+                      : context.cs.onSurfaceVariant),
           const Divider(height: 12),
           _SummaryRow(
               label: 'Total Catatan',
               value: CurrencyFormatter.format(state.totalBulk),
-              color: AppColors.darkBlue),
+              color: context.cs.onSurface),
         ],
       ),
     );
@@ -443,8 +419,8 @@ class _SummaryRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 13, color: AppColors.darkGray)),
+            style: TextStyle(
+                fontSize: 13, color: context.cs.onSurfaceVariant)),
         Text(value,
             style: TextStyle(
                 fontSize: 14,
@@ -465,8 +441,8 @@ class _EmptyPreview extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(message,
-          style: const TextStyle(
-              fontSize: 13, color: AppColors.darkGray,
+          style: context.tt.bodySmall?.copyWith(
+              color: context.cs.onSurfaceVariant,
               fontStyle: FontStyle.italic)),
     );
   }

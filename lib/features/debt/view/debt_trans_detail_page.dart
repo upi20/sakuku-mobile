@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/models/debt_trans_model.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
@@ -50,10 +50,7 @@ class _DebtTransDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
         title: const Text('Detail Transaksi'),
         elevation: 0,
         actions: [
@@ -82,12 +79,12 @@ class _DebtTransDetailBody extends StatelessWidget {
                     );
                   }
                 },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'edit', child: Text('Edit')),
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
                   PopupMenuItem(
                       value: 'hapus',
                       child: Text('Hapus',
-                          style: TextStyle(color: AppColors.expense))),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error))),
                 ],
               );
             },
@@ -100,8 +97,7 @@ class _DebtTransDetailBody extends StatelessWidget {
             context.pop();
           } else if (state is DebtTransError) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.expense));
+                content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -119,7 +115,7 @@ class _DebtTransDetailBody extends StatelessWidget {
             }
             final isPayment = trans.type == 1;
             final color =
-                isPayment ? AppColors.income : AppColors.expense;
+                isPayment ? AppTheme.income : AppTheme.expense;
             final typeLabel = isPayment ? 'PEMBAYARAN' : 'PENAMBAHAN';
 
             return SingleChildScrollView(
@@ -131,14 +127,8 @@ class _DebtTransDetailBody extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.cs.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withAlpha(13),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2)),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,16 +202,16 @@ class _LabelValue extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkGray)),
+                color: context.cs.onSurfaceVariant)),
         const SizedBox(height: 4),
         Text(value,
             style: valueStyle ??
-                const TextStyle(
+                TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue,
+                    color: context.cs.onSurface,
                     fontSize: 15)),
       ],
     );

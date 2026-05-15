@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/models/category_model.dart';
 import '../../../shared/widgets/icon_color_picker_sheet.dart';
@@ -86,9 +86,9 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
                   .read<CategoryBloc>()
                   .add(CategoryDelete(widget.categoryId));
             },
-            child: const Text(
+            child: Text(
               'HAPUS',
-              style: TextStyle(color: AppColors.expense),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],
@@ -121,7 +121,7 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
       return Color(
           int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
     } catch (_) {
-      return AppColors.primary;
+      return const Color(0xFF2b6788);
     }
   }
 
@@ -153,17 +153,13 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.expense,
             ),
           );
         }
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
             title: const Text('Edit Kategori'),
             elevation: 0,
           ),
@@ -201,7 +197,7 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
   Widget _buildCategoryCard() {
     final color = _parseColor(_selectedColor);
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +207,6 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -223,16 +218,12 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
                   controller: _nameController,
                   maxLength: 25,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue),
+                      fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: 'Nama kategori',
                     counterText: '',
-                    filled: true,
-                    fillColor: AppColors.background,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 12),
@@ -263,7 +254,7 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
 
   Widget _buildActivationCard() {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +264,6 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkBlue,
               letterSpacing: 0.5,
             ),
           ),
@@ -284,15 +274,13 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
                 child: Text(
                   'Kategori nonaktif tidak akan muncul di daftar pilihan transaksi',
                   style: TextStyle(
-                      fontSize: 13, color: AppColors.darkGray, height: 1.4),
+                      fontSize: 13, height: 1.4),
                   maxLines: 2,
                 ),
               ),
               const SizedBox(width: 8),
               Switch(
                 value: _isActive,
-                activeThumbColor: AppColors.primary,
-                activeTrackColor: AppColors.primary.withAlpha(100),
                 onChanged: (val) => setState(() => _isActive = val),
               ),
             ],
@@ -309,13 +297,13 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.delete_outline, color: AppColors.expense, size: 22),
-            SizedBox(width: 6),
+          children: [
+            Icon(Icons.delete_outline, color: context.cs.error, size: 22),
+            const SizedBox(width: 6),
             Text(
               'HAPUS KATEGORI',
               style: TextStyle(
-                color: AppColors.expense,
+                color: context.cs.error,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
                 letterSpacing: 0.5,
@@ -329,15 +317,13 @@ class _EditCategoryBodyState extends State<_EditCategoryBody> {
 
   Widget _buildSaveButton() {
     return Container(
-      color: Colors.white,
+      color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
+        child: FilledButton(
           onPressed: _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+          style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8)),
