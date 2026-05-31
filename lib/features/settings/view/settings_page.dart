@@ -72,6 +72,14 @@ class SettingsPage extends StatelessWidget {
             onTap: () => context.push('/settings/backup'),
           ),
 
+          // ── Kecerdasan Buatan ─────────────────────────────────────────
+          _SectionHeader(label: 'Kecerdasan Buatan'),
+          _SettingsTile(
+            icon: Icons.auto_awesome_outlined,
+            label: 'Pengaturan AI',
+            onTap: () => context.push('/settings/ai'),
+          ),
+
           // ── Lainnya ───────────────────────────────────────────────────
           _SectionHeader(label: 'Lainnya'),
           _SettingsTile(

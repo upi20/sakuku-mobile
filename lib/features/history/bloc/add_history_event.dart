@@ -2,9 +2,27 @@ part of 'add_history_bloc.dart';
 
 abstract class AddHistoryEvent {}
 
+/// Optional seed values from AI quick-add to pre-fill the form.
+class AddHistoryAiSeed {
+  final String sign;
+  final String amountText;
+  final String note;
+  final String? categoryName;
+  final String? accountName;
+
+  const AddHistoryAiSeed({
+    required this.sign,
+    required this.amountText,
+    required this.note,
+    this.categoryName,
+    this.accountName,
+  });
+}
+
 class AddHistoryInit extends AddHistoryEvent {
   final String initialSign; // '+' or '-'
-  AddHistoryInit({this.initialSign = '-'});
+  final AddHistoryAiSeed? seed;
+  AddHistoryInit({this.initialSign = '-', this.seed});
 }
 
 class AddHistoryEditInit extends AddHistoryEvent {
@@ -48,3 +66,9 @@ class AddHistoryTimeChanged extends AddHistoryEvent {
 }
 
 class AddHistorySubmit extends AddHistoryEvent {}
+
+/// Meminta AI untuk mem-parse teks kasual dan mengisi form secara otomatis.
+class AddHistoryAiRequested extends AddHistoryEvent {
+  final String text;
+  AddHistoryAiRequested(this.text);
+}

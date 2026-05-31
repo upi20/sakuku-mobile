@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_strings.dart';
+import '../../core/services/quick_actions_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../history/bloc/history_bloc.dart';
+import '../history/view/quick_ai_sheet.dart';
 
 class MainPage extends StatefulWidget {
   final Widget child;
@@ -15,6 +17,31 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  bool _slidingForward = true;
+  bool _isAiSheetOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      QuickActionsService.instance.registerHandler(_handleShortcut);
+    });
+  }
+
+  @override
+  void dispose() {
+    QuickActionsService.instance.clearHandler();
+    super.dispose();
+  }
+
+  void _handleShortcut(String type) {
+    if (!mounted) return;
+    if (type == QuickActionsService.shortcutQuickAi) {
+      if (_isAiSheetOpen) return;
+      _onAiFabTap();
+    }
+  }
+
   static const List<_TabItem> _tabs = [
     _TabItem(
       label: 'Transaksi',
@@ -51,6 +78,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _onTap(int index) {
+    final curr = _currentIndex;
+    if (index == curr) return;
+    setState(() {
+      _slidingForward = index > curr;
+    });
     if (index == 0) {
       final bloc = context.read<HistoryBloc>();
       if (bloc.state is! HistoryInitial) {
@@ -58,6 +90,12 @@ class _MainPageState extends State<MainPage> {
       }
     }
     context.go(_tabs[index].route);
+  }
+
+  Future<void> _onAiFabTap() async {
+    setState(() => _isAiSheetOpen = true);
+    await showQuickAiSheet(context);
+    if (mounted) setState(() => _isAiSheetOpen = false);
   }
 
   void _onFabTap() {
@@ -84,16 +122,38 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex;
     return Scaffold(
-      body: widget.child,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onFabTap,
-        tooltip: 'Tambah',
-        child: const Icon(Icons.add, size: 28),
+      body: _SlidingBody(
+        currentIndex: currentIndex,
+        slidingForward: _slidingForward,
+        child: widget.child,
       ),
+      floatingActionButton: _isAiSheetOpen
+          ? null
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (currentIndex == 0) ...
+                  [
+                    FloatingActionButton.small(
+                      heroTag: 'ai_fab',
+                      onPressed: _onAiFabTap,
+                      tooltip: 'Input AI',
+                      child: const Icon(Icons.auto_awesome),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                FloatingActionButton(
+                  heroTag: 'add_fab',
+                  onPressed: _onFabTap,
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: _onTap,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: _tabs
             .map((t) => NavigationDestination(
                   icon: Icon(t.icon),
@@ -101,6 +161,52 @@ class _MainPageState extends State<MainPage> {
                   label: t.label,
                 ))
             .toList(),
+      ),
+    );
+  }
+}
+
+// ─── Sliding tab body ────────────────────────────────────────────────────────
+
+class _SlidingBody extends StatelessWidget {
+  final int currentIndex;
+  final bool slidingForward;
+  final Widget child;
+
+  const _SlidingBody({
+    required this.currentIndex,
+    required this.slidingForward,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) {
+        final enterOffset = slidingForward
+            ? const Offset(0.25, 0)
+            : const Offset(-0.25, 0);
+        return FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOut,
+          ),
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: enterOffset,
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          ),
+        );
+      },
+      child: KeyedSubtree(
+        key: ValueKey(currentIndex),
+        child: child,
       ),
     );
   }

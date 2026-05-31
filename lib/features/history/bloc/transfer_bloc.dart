@@ -34,6 +34,7 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
     on<TransferDateChanged>(_onDateChanged);
     on<TransferTimeChanged>(_onTimeChanged);
     on<TransferSubmit>(_onSubmit);
+    on<TransferAiSubmit>(_onAiSubmit);
     on<TransferUpdate>(_onUpdate);
     on<TransferDeleteRequested>(_onDelete);
   }
@@ -154,6 +155,85 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
           time: timeStr,
           dateTime: dateTimeStr,
           note: 'Biaya transfer',
+          sign: '-',
+        ));
+      }
+
+      emit(TransferSuccess());
+    } catch (e) {
+      emit(TransferError(e.toString()));
+    }
+  }
+
+  Future<void> _onAiSubmit(
+      TransferAiSubmit event, Emitter<TransferState> emit) async {
+    if (event.srcAccount.id == null || event.destAccount.id == null) {
+      emit(TransferError('Rekening belum lengkap.'));
+      return;
+    }
+    if (event.srcAccount.id == event.destAccount.id) {
+      emit(TransferError('Rekening asal dan tujuan harus berbeda.'));
+      return;
+    }
+    if (event.amount <= 0) {
+      emit(TransferError('Nominal harus lebih dari nol.'));
+      return;
+    }
+
+    final dt = event.dateTime;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final dateStr = '${dt.year}-${two(dt.month)}-${two(dt.day)}';
+    final timeStr = '${two(dt.hour)}:${two(dt.minute)}:00';
+    final dateTimeStr = '$dateStr $timeStr';
+
+    try {
+      final transfer = HistoryTransferModel(
+        srcAccountId: event.srcAccount.id!,
+        destAccountId: event.destAccount.id!,
+        amount: event.amount,
+        date: dateStr,
+        time: timeStr,
+        datetime: dateTimeStr,
+      );
+      final transferId = await _transferDao.insert(transfer);
+
+      await _historyRepo.create(HistoryModel(
+        categoryId: _kCategorySrcTransfer,
+        accountId: event.srcAccount.id!,
+        transferId: transferId,
+        type: 2,
+        amount: event.amount,
+        date: dateStr,
+        time: timeStr,
+        dateTime: dateTimeStr,
+        note: 'Ke ${event.destAccount.name}',
+        sign: '-',
+      ));
+
+      await _historyRepo.create(HistoryModel(
+        categoryId: _kCategoryDestTransfer,
+        accountId: event.destAccount.id!,
+        transferId: transferId,
+        type: 2,
+        amount: event.amount,
+        date: dateStr,
+        time: timeStr,
+        dateTime: dateTimeStr,
+        note: 'Dari ${event.srcAccount.name}',
+        sign: '+',
+      ));
+
+      if (event.fee > 0) {
+        await _historyRepo.create(HistoryModel(
+          categoryId: _kCategoryTransferFee,
+          accountId: event.srcAccount.id!,
+          transferId: transferId,
+          type: 4,
+          amount: event.fee,
+          date: dateStr,
+          time: timeStr,
+          dateTime: dateTimeStr,
+          note: event.note.isEmpty ? 'Biaya transfer' : event.note,
           sign: '-',
         ));
       }

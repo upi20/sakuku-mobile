@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/api/ai_transaction_service.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/category_model.dart';
 import '../../../core/models/history_model.dart';
@@ -30,22 +31,50 @@ class AddHistoryBloc extends Bloc<AddHistoryEvent, AddHistoryState> {
     on<AddHistoryDateChanged>(_onDateChanged);
     on<AddHistoryTimeChanged>(_onTimeChanged);
     on<AddHistorySubmit>(_onSubmit);
+    on<AddHistoryAiRequested>(_onAiRequested);
   }
 
   Future<void> _onInit(AddHistoryInit event, Emitter<AddHistoryState> emit) async {
     emit(AddHistoryLoading());
     try {
+      final seed = event.seed;
+      final sign = seed?.sign ?? event.initialSign;
       final accounts = await _accountRepo.getAll();
-      final categories = await _categoryRepo.getBySign(event.initialSign);
+      final categories = await _categoryRepo.getBySign(sign);
       final now = DateTime.now();
+
+      CategoryModel? selectedCategory;
+      AccountModel? selectedAccount;
+      if (seed != null) {
+        if (seed.categoryName != null && seed.categoryName!.isNotEmpty) {
+          for (final c in categories) {
+            if (c.name.toLowerCase() == seed.categoryName!.toLowerCase()) {
+              selectedCategory = c;
+              break;
+            }
+          }
+        }
+        if (seed.accountName != null && seed.accountName!.isNotEmpty) {
+          for (final a in accounts) {
+            if (a.name.toLowerCase() == seed.accountName!.toLowerCase()) {
+              selectedAccount = a;
+              break;
+            }
+          }
+        }
+      }
+
       emit(AddHistoryReady(
         accounts: accounts,
         categories: categories,
-        sign: event.initialSign,
-        amountText: '',
-        note: '',
+        sign: sign,
+        amountText: seed?.amountText ?? '',
+        note: seed?.note ?? '',
         date: now,
         time: TimeOfDay.fromDateTime(now),
+        selectedCategory: selectedCategory,
+        selectedAccount: selectedAccount,
+        aiJustFilled: seed != null,
       ));
     } catch (e) {
       emit(AddHistoryError(e.toString()));
@@ -183,6 +212,59 @@ class AddHistoryBloc extends Bloc<AddHistoryEvent, AddHistoryState> {
       emit(AddHistorySuccess());
     } catch (e) {
       emit(AddHistoryError(e.toString()));
+    }
+  }
+
+  Future<void> _onAiRequested(
+    AddHistoryAiRequested event,
+    Emitter<AddHistoryState> emit,
+  ) async {
+    if (state is! AddHistoryReady) return;
+    final s = state as AddHistoryReady;
+
+    emit(s.copyWith(isAiLoading: true));
+
+    try {
+      // Ambil semua kategori (bukan hanya yang difilter sign saat ini)
+      // karena AI yang menentukan sign — pola sama seperti _onEditInit.
+      final allCategories = await _categoryRepo.getAll();
+
+      final result = await AiTransactionService.instance.parse(
+        userInput: event.text,
+        categories: allCategories,
+        accounts: s.accounts, // sudah ada di state, tidak perlu query ulang
+        allowTransfer: false,
+      );
+      // allowTransfer=false menjamin selalu transaction
+      final tx = result as AiParsedTransaction;
+
+      // Reload kategori sesuai sign yang ditentukan AI — pola sama seperti _onTypeChanged.
+      final filteredCategories = await _categoryRepo.getBySign(tx.sign);
+
+      // Cari object matching — case-insensitive, dengan fallback ke first.
+      final category = filteredCategories.firstWhere(
+        (c) => c.name.toLowerCase() == tx.categoryName.toLowerCase(),
+        orElse: () => filteredCategories.first,
+      );
+      final account = s.accounts.firstWhere(
+        (a) => a.name.toLowerCase() == tx.accountName.toLowerCase(),
+        orElse: () => s.accounts.first,
+      );
+
+      emit(s.copyWith(
+        sign: tx.sign,
+        categories: filteredCategories,
+        selectedCategory: category,
+        selectedAccount: account,
+        amountText: tx.amountText,
+        note: tx.note,
+        aiJustFilled: true,
+        isAiLoading: false,
+      ));
+    } on Exception catch (e) {
+      emit(s.copyWith(isAiLoading: false));
+      emit(AddHistoryError(e.toString()));
+      emit(s.copyWith(isAiLoading: false));
     }
   }
 }

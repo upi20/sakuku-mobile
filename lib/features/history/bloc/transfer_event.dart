@@ -41,6 +41,26 @@ class TransferTimeChanged extends TransferEvent {
 
 class TransferSubmit extends TransferEvent {}
 
+/// Submit transfer langsung tanpa melewati state [TransferReady].
+/// Dipakai oleh quick-AI sheet yang sudah mengumpulkan semua nilai sendiri.
+class TransferAiSubmit extends TransferEvent {
+  final AccountModel srcAccount;
+  final AccountModel destAccount;
+  final double amount;
+  final double fee;
+  final DateTime dateTime;
+  final String note;
+
+  TransferAiSubmit({
+    required this.srcAccount,
+    required this.destAccount,
+    required this.amount,
+    required this.fee,
+    required this.dateTime,
+    required this.note,
+  });
+}
+
 class TransferUpdate extends TransferEvent {}
 
 class TransferDeleteRequested extends TransferEvent {

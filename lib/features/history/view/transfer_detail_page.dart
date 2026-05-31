@@ -109,130 +109,99 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
     final destBg = ColoredIcon.parseColor(t.destAccountColor);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         children: [
-          // Src → Dest
+          // ── Card 1: Account pair ──────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
             decoration: BoxDecoration(
-              color: context.cs.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.transfer.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
-                Column(
-                  children: [
-                    ColoredIcon(
-                        iconName: t.srcAccountIcon ?? 'ic_other',
-                        backgroundColor: srcBg),
-                    const SizedBox(height: 4),
-                    Text(
-                      t.srcAccountName ?? '-',
-                      style: TextStyle(
-                          fontSize: 12, color: context.cs.onSurface),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                Expanded(
+                  child: _AccountColumn(
+                    iconName: t.srcAccountIcon ?? 'ic_other',
+                    bgColor: srcBg,
+                    name: t.srcAccountName ?? '-',
+                    align: CrossAxisAlignment.start,
+                  ),
                 ),
-                const Expanded(
-                  child: Icon(Icons.arrow_forward,
-                      color: AppTheme.transfer, size: 28),
-                ),
-                Column(
-                  children: [
-                    ColoredIcon(
-                        iconName: t.destAccountIcon ?? 'ic_other',
-                        backgroundColor: destBg),
-                    const SizedBox(height: 4),
-                    Text(
-                      t.destAccountName ?? '-',
-                      style: TextStyle(
-                          fontSize: 12, color: context.cs.onSurface),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppTheme.transfer.withValues(alpha: 0.18),
+                      shape: BoxShape.circle,
                     ),
-                  ],
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: AppTheme.transfer,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _AccountColumn(
+                    iconName: t.destAccountIcon ?? 'ic_other',
+                    bgColor: destBg,
+                    name: t.destAccountName ?? '-',
+                    align: CrossAxisAlignment.end,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 12),
-          // Amount + Date
+          // ── Card 2: Amount ───────────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(16),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             decoration: BoxDecoration(
-              color: context.cs.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(8),
+              color: context.cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
-                _DetailRow(
-                  label: 'JUMLAH',
-                  value: CurrencyFormatter.format(t.amount),
+                Text(
+                  'JUMLAH TRANSFER',
+                  style: context.tt.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                    color: context.cs.onSurfaceVariant,
+                  ),
                 ),
-                const Divider(height: 1),
-                _DetailRow(
-                  label: 'TANGGAL',
-                  value:
-                      '${DateFormatter.formatDate(t.date)}  ${DateFormatter.formatTime(t.time)}',
+                const SizedBox(height: 8),
+                Text(
+                  CurrencyFormatter.format(t.amount),
+                  style: context.tt.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.transfer,
+                  ),
                 ),
               ],
             ),
           ),
-          // Fee card (if any)
+          const SizedBox(height: 12),
+          // ── Card 3: Date ────────────────────────────────────────
+          Container(
+            decoration: BoxDecoration(
+              color: context.cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: _IconDetailRow(
+              leading: const _NeutralIcon(Icons.calendar_today_outlined),
+              label: 'TANGGAL',
+              value: '${DateFormatter.formatDate(t.date)},  ${DateFormatter.formatTime(t.time)}',
+            ),
+          ),
           if (_fee != null) ...[
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: context.cs.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  ColoredIcon(
-                    iconName: 'ic_transfer',
-                    backgroundColor: ColoredIcon.parseColor('#9e9e9e'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                        'BIAYA TRANSFER',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: context.cs.onSurfaceVariant,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _fee!.accountName ?? '-',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: context.cs.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    CurrencyFormatter.format(_fee!.amount),
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.expense,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _FeeCard(fee: _fee!),
           ],
         ],
       ),
@@ -240,34 +209,173 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
   }
 }
 
-class _DetailRow extends StatelessWidget {
+class _AccountColumn extends StatelessWidget {
+  final String iconName;
+  final Color bgColor;
+  final String name;
+  final CrossAxisAlignment align;
+  const _AccountColumn({
+    required this.iconName,
+    required this.bgColor,
+    required this.name,
+    required this.align,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: align,
+      children: [
+        ColoredIcon(
+          iconName: iconName,
+          backgroundColor: bgColor,
+          size: 52,
+          iconSize: 28,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          name,
+          style: context.tt.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: context.cs.onSurface,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: align == CrossAxisAlignment.end ? TextAlign.end : TextAlign.start,
+        ),
+      ],
+    );
+  }
+}
+
+class _NeutralIcon extends StatelessWidget {
+  final IconData icon;
+  const _NeutralIcon(this.icon);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: context.cs.surfaceContainerHighest,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 20, color: context.cs.onSurfaceVariant),
+    );
+  }
+}
+
+class _IconDetailRow extends StatelessWidget {
+  final Widget leading;
   final String label;
   final String value;
-  const _DetailRow({required this.label, required this.value});
+  const _IconDetailRow({
+    required this.leading,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: context.cs.onSurfaceVariant,
-              letterSpacing: 0.5,
+          leading,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: context.tt.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                    color: context.cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: context.tt.bodyMedium?.copyWith(
+                    color: context.cs.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(fontSize: 15, color: context.cs.onSurface),
           ),
         ],
       ),
     );
   }
 }
+
+class _FeeCard extends StatelessWidget {
+  final HistoryModel fee;
+  const _FeeCard({required this.fee});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: context.cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppTheme.expense.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.receipt_outlined,
+              color: AppTheme.expense,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'BIAYA TRANSFER',
+                  style: context.tt.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                    color: context.cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  fee.accountName ?? '-',
+                  style: context.tt.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: context.cs.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            CurrencyFormatter.format(fee.amount),
+            style: context.tt.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppTheme.expense,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+

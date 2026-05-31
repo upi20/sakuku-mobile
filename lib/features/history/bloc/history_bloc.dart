@@ -215,6 +215,15 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     final rows = <HistoryListRow>[];
     String? lastDate;
 
+    // Pre-group transfer legs (type==2) by transferId so we can merge pairs.
+    final transferPairs = <int, List<HistoryModel>>{};
+    for (final item in items) {
+      if (item.type == 2 && item.transferId > 0) {
+        transferPairs.putIfAbsent(item.transferId, () => []).add(item);
+      }
+    }
+    final seenTransferIds = <int>{};
+
     for (final item in items) {
       if (item.date != lastDate) {
         final dayItems = items.where((i) => i.date == item.date);
@@ -235,7 +244,29 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         ));
         lastDate = item.date;
       }
-      rows.add(HistoryTransactionRow(item));
+
+      if (item.type == 2 && item.transferId > 0) {
+        // Collapse src+dest into one HistoryTransferPairRow.
+        if (seenTransferIds.contains(item.transferId)) continue;
+        seenTransferIds.add(item.transferId);
+        final pair = transferPairs[item.transferId] ?? [];
+        final srcItem = pair.firstWhere(
+          (i) => i.sign == '-',
+          orElse: () => item,
+        );
+        final destItem = pair.firstWhere(
+          (i) => i.sign == '+',
+          orElse: () => item,
+        );
+        rows.add(HistoryTransferPairRow(
+          transferId: item.transferId,
+          amount: item.amount,
+          srcAccountName: srcItem.accountName ?? '-',
+          destAccountName: destItem.accountName ?? '-',
+        ));
+      } else {
+        rows.add(HistoryTransactionRow(item));
+      }
     }
     return rows;
   }

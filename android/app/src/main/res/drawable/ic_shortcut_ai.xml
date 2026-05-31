@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shortcut icon — "Catat dengan AI".
+  Rendered at ~48 dp on the launcher long-press menu.
+  Design: brand-color filled circle + white mic + white AI sparkle.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- ── Background circle (brand color) ───────────────────────────────── -->
+    <path
+        android:fillColor="#2b6788"
+        android:pathData="M12,0 A12,12 0 0,1 12,24 A12,12 0 0,0 12,0 Z"/>
+
+    <!-- ── Mic capsule body ───────────────────────────────────────────────── -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,14c1.66,0 3,-1.34 3,-3V5c0,-1.66 -1.34,-3 -3,-3S9,3.34 9,5v6c0,1.66 1.34,3 3,3z"/>
+
+    <!-- ── Mic stand + base ───────────────────────────────────────────────── -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17.3,11c0,2.92 -2.45,5.3 -5.3,5.3S6.7,13.92 6.7,11H5c0,3.41 2.72,6.23 6,6.72V21h2v-3.28c3.28,-0.49 6,-3.31 6,-6.72h-1.7z"/>
+
+    <!-- ── AI sparkle (top-right, inside circle) ─────────────────────────── -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18.5,3.5 L19.1,5.1 L20.7,5.7 L19.1,6.3 L18.5,7.9 L17.9,6.3 L16.3,5.7 L17.9,5.1 Z"/>
+
+</vector>
+

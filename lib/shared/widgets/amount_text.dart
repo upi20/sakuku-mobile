@@ -11,6 +11,7 @@ class AmountText extends StatelessWidget {
   final String sign;
   final int type;
   final TextStyle? style;
+  final bool compact;
 
   const AmountText({
     super.key,
@@ -18,6 +19,7 @@ class AmountText extends StatelessWidget {
     required this.sign,
     this.type = 1,
     this.style,
+    this.compact = false,
   });
 
   Color get _color {
@@ -34,8 +36,11 @@ class AmountText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = style ?? const TextStyle(fontSize: 14);
+    final formatted = compact
+        ? '$_prefix${CurrencyFormatter.formatCompact(amount.abs())}'
+        : '$_prefix${CurrencyFormatter.formatAbs(amount)}';
     return Text(
-      '$_prefix${CurrencyFormatter.formatAbs(amount)}',
+      formatted,
       style: base.copyWith(color: _color),
     );
   }

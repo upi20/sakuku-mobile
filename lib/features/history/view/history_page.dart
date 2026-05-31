@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../bloc/history_bloc.dart';
-import '../widgets/history_summary_card.dart';
 import '../widgets/history_date_header.dart';
 import '../widgets/history_list_item.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/date_formatter.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -78,17 +78,9 @@ class _HistoryBody extends StatelessWidget {
       },
       child: CustomScrollView(
         slivers: [
-          // Navigation bar (changes based on view mode)
+          // Mode tabs + nav + inline summary (one combined header)
           SliverToBoxAdapter(
-            child: _buildNavBar(context, state),
-          ),
-          // Summary card
-          SliverToBoxAdapter(
-            child: HistorySummaryCard(
-              income: income,
-              expense: expense,
-              total: total,
-            ),
+            child: _buildNavBar(context, state, income, expense, total),
           ),
           // Empty state or list
           if (state.rows.isEmpty)
@@ -124,6 +116,13 @@ class _HistoryBody extends StatelessWidget {
                       },
                     );
                   }
+                  if (row is HistoryTransferPairRow) {
+                    return _TransferPairItem(
+                      row: row,
+                      onTap: () => context
+                          .push('/history/transfer/${row.transferId}'),
+                    );
+                  }
                   return null;
                 },
                 childCount: state.rows.length,
@@ -134,87 +133,292 @@ class _HistoryBody extends StatelessWidget {
     );
   }
 
-  Widget _buildNavBar(BuildContext context, HistoryLoaded state) {
-    switch (state.viewMode) {
-      case HistoryViewMode.monthly:
-        return _NavRow(
-          label: state.displayLabel,
-          onPrev: () =>
-              context.read<HistoryBloc>().add(HistoryChangeMonth(-1)),
-          onNext: () =>
-              context.read<HistoryBloc>().add(HistoryChangeMonth(1)),
-        );
-      case HistoryViewMode.yearly:
-        return _NavRow(
-          label: state.displayLabel,
-          onPrev: () =>
-              context.read<HistoryBloc>().add(HistoryChangeYear(-1)),
-          onNext: () =>
-              context.read<HistoryBloc>().add(HistoryChangeYear(1)),
-        );
-      case HistoryViewMode.daily:
-        return _NavRow(
-          label: state.displayLabel,
-          onPrev: () =>
-              context.read<HistoryBloc>().add(HistoryChangeDay(-1)),
-          onNext: () =>
-              context.read<HistoryBloc>().add(HistoryChangeDay(1)),
-        );
-      case HistoryViewMode.all:
-      case HistoryViewMode.custom:
-        return Container(
-          color: context.cs.surfaceContainerLowest,
-          width: double.infinity,
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Text(
-            state.displayLabel,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        );
-    }
+  Widget _buildNavBar(
+    BuildContext context,
+    HistoryLoaded state,
+    double income,
+    double expense,
+    double total,
+  ) {
+    return _NavWithSummary(
+      state: state,
+      income: income,
+      expense: expense,
+      total: total,
+    );
   }
 }
 
-class _NavRow extends StatelessWidget {
-  final String label;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
+class _NavWithSummary extends StatelessWidget {
+  final HistoryLoaded state;
+  final double income;
+  final double expense;
+  final double total;
 
-  const _NavRow({
-    required this.label,
-    required this.onPrev,
-    required this.onNext,
+  const _NavWithSummary({
+    required this.state,
+    required this.income,
+    required this.expense,
+    required this.total,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isNavigable = state.viewMode == HistoryViewMode.monthly ||
+        state.viewMode == HistoryViewMode.yearly ||
+        state.viewMode == HistoryViewMode.daily;
+
     return Container(
       color: context.cs.surfaceContainerLowest,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.fromLTRB(4, 2, 8, 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: onPrev,
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          // Left side: prev arrow + label + next arrow (or just label)
+          if (isNavigable) ...[
+            IconButton(
+              icon: const Icon(Icons.chevron_left),
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                if (state.viewMode == HistoryViewMode.monthly) {
+                  context.read<HistoryBloc>().add(HistoryChangeMonth(-1));
+                } else if (state.viewMode == HistoryViewMode.yearly) {
+                  context.read<HistoryBloc>().add(HistoryChangeYear(-1));
+                } else {
+                  context.read<HistoryBloc>().add(HistoryChangeDay(-1));
+                }
+              },
+            ),
+            GestureDetector(
+              onTap: () => context.push('/history/filter'),
+              child: Text(
+                state.displayLabel,
+                style: context.tt.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                if (state.viewMode == HistoryViewMode.monthly) {
+                  context.read<HistoryBloc>().add(HistoryChangeMonth(1));
+                } else if (state.viewMode == HistoryViewMode.yearly) {
+                  context.read<HistoryBloc>().add(HistoryChangeYear(1));
+                } else {
+                  context.read<HistoryBloc>().add(HistoryChangeDay(1));
+                }
+              },
+            ),
+          ] else
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: GestureDetector(
+                onTap: () => context.push('/history/filter'),
+                child: Text(
+                  state.displayLabel,
+                  style: context.tt.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          const Spacer(),
+          // Right side: tap any chip → show all in one dialog
+          GestureDetector(
+            onTap: () => _showSummaryDialog(context, income, expense, total),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _MiniChip(icon: Icons.arrow_downward, amount: income, color: AppTheme.income),
+                const SizedBox(width: 8),
+                _MiniChip(icon: Icons.arrow_upward, amount: expense, color: AppTheme.expense),
+                const SizedBox(width: 8),
+                _MiniChip(icon: Icons.account_balance_wallet, amount: total, color: AppTheme.balanced),
+              ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: onNext,
+        ],
+      ),
+    );
+  }
+}
+
+void _showSummaryDialog(
+  BuildContext context,
+  double income,
+  double expense,
+  double total,
+) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Ringkasan'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _SummaryDialogRow(
+            label: 'Pemasukan',
+            amount: income,
+            color: AppTheme.income,
+          ),
+          const SizedBox(height: 8),
+          _SummaryDialogRow(
+            label: 'Pengeluaran',
+            amount: expense,
+            color: AppTheme.expense,
+          ),
+          const Divider(height: 16),
+          _SummaryDialogRow(
+            label: 'Net',
+            amount: total,
+            color: AppTheme.balanced,
           ),
         ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Tutup'),
+        ),
+      ],
+    ),
+  );
+}
+
+class _SummaryDialogRow extends StatelessWidget {
+  final String label;
+  final double amount;
+  final Color color;
+
+  const _SummaryDialogRow({
+    required this.label,
+    required this.amount,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(label, style: context.tt.bodyMedium),
+        ),
+        Text(
+          CurrencyFormatter.format(amount),
+          style: context.tt.titleSmall?.copyWith(
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MiniChip extends StatelessWidget {
+  final IconData icon;
+  final double amount;
+  final Color color;
+
+  const _MiniChip({required this.icon, required this.amount, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 2),
+        Text(
+          CurrencyFormatter.formatCompact(amount),
+          style: context.tt.labelSmall?.copyWith(
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TransferPairItem extends StatelessWidget {
+  final HistoryTransferPairRow row;
+  final VoidCallback? onTap;
+
+  const _TransferPairItem({required this.row, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+      child: Material(
+        color: context.cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppTheme.transfer.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.swap_horiz,
+                      color: AppTheme.transfer, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Transfer Saldo',
+                              style: context.tt.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: context.cs.onSurface,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            CurrencyFormatter.formatCompact(row.amount),
+                            style: context.tt.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.transfer,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(Icons.swap_horiz,
+                              size: 14, color: AppTheme.transfer),
+                        ],
+                      ),
+                      Text(
+                        '${row.srcAccountName} → ${row.destAccountName}',
+                        style: context.tt.bodySmall?.copyWith(
+                          color: context.cs.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

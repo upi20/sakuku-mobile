@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/api/tts_service.dart';
+import '../../../core/api/voice_input_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/models/account_model.dart';
 import '../../../core/models/category_model.dart';
+import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/date_formatter.dart';
 import '../../../shared/utils/thousands_formatter.dart';
 import '../../../shared/widgets/colored_icon.dart';
@@ -20,11 +23,18 @@ class AddHistoryPage extends StatefulWidget {
 class _AddHistoryPageState extends State<AddHistoryPage> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    context.read<AddHistoryBloc>().add(AddHistoryInit(initialSign: '-'));
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+    final seed = GoRouterState.of(context).extra;
+    context.read<AddHistoryBloc>().add(AddHistoryInit(
+          initialSign: '-',
+          seed: seed is AddHistoryAiSeed ? seed : null,
+        ));
   }
 
   @override
@@ -44,19 +54,63 @@ class _AddHistoryPageState extends State<AddHistoryPage> {
         } else if (state is AddHistoryError) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.message)));
+        } else if (state is AddHistoryReady && state.aiJustFilled) {
+          // Sync controllers dengan nilai dari AI
+          final amount = double.tryParse(state.amountText) ?? 0;
+          _amountController.text =
+              ThousandsInputFormatter.formatForDisplay(amount);
+          _noteController.text = state.note;
+          // Bacakan konfirmasi sekali
+          final typeText = state.sign == '+' ? 'Pemasukan' : 'Pengeluaran';
+          TtsService.instance.speak(
+            '$typeText ${CurrencyFormatter.formatForSpeech(amount)}, '
+            '${state.selectedCategory!.name}, '
+            '${state.selectedAccount!.name}. '
+            'Periksa lalu simpan.',
+          );
         }
       },
       builder: (context, state) {
+        final ready = state is AddHistoryReady;
         return Scaffold(
           appBar: AppBar(
             title: const Text('Tambah Transaksi'),
+            actions: [
+              if (ready)
+                state.isAiLoading
+                    ? const Padding(
+                        padding: EdgeInsets.all(14),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.auto_awesome_outlined),
+                        tooltip: 'Isi dengan AI',
+                        onPressed: () => _showAiSheet(context),
+                      ),
+            ],
           ),
-          body: state is AddHistoryReady
+          body: ready
               ? _buildForm(context, state)
               : const Center(child: CircularProgressIndicator()),
         );
       },
     );
+  }
+
+  Future<void> _showAiSheet(BuildContext context) async {
+    final bloc = context.read<AddHistoryBloc>();
+    final text = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const _AiInputSheet(),
+    );
+    if (text != null && text.isNotEmpty && mounted) {
+      bloc.add(AddHistoryAiRequested(text));
+    }
   }
 
   Widget _buildForm(BuildContext context, AddHistoryReady state) {
@@ -446,6 +500,8 @@ class _DateTimeBtn extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        minimumSize: const Size(0, 40),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }
@@ -557,3 +613,232 @@ class _AccountPicker extends StatelessWidget {
   }
 }
 
+// ── AI Input Sheet ────────────────────────────────────────────────────────────
+
+class _AiInputSheet extends StatefulWidget {
+  const _AiInputSheet();
+
+  @override
+  State<_AiInputSheet> createState() => _AiInputSheetState();
+}
+
+class _AiInputSheetState extends State<_AiInputSheet> {
+  final _controller = TextEditingController();
+  bool _isListening = false;
+  bool _voiceError = false;
+  String _textBeforeListen = '';
+  bool _lastResultWasNonEmpty = false;
+
+  @override
+  void dispose() {
+    VoiceInputService.instance.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggleVoice() async {
+    if (_isListening) {
+      debugPrint('[STT] ⏹ user tapped STOP, controller="${_controller.text}"');
+      // Capture text BEFORE stopListening() triggers any callbacks
+      _textBeforeListen = _controller.text.trimRight();
+      await VoiceInputService.instance.stopListening();
+      setState(() => _isListening = false);
+      return;
+    }
+    _textBeforeListen = _controller.text.trimRight();
+    _lastResultWasNonEmpty = false;
+    debugPrint('[STT] ▶ START listening, _textBeforeListen="$_textBeforeListen"');
+    setState(() {
+      _isListening = true;
+      _voiceError = false;
+    });
+    try {
+      await VoiceInputService.instance.startListening(
+        onResult: (text) {
+          debugPrint('[STT] onResult text="$text" isEmpty=${text.isEmpty} base="$_textBeforeListen"');
+          if (!mounted) return;
+          if (text.isNotEmpty) {
+            final combined = _textBeforeListen.isEmpty
+                ? text.trim()
+                : '${_textBeforeListen} ${text.trim()}';
+            debugPrint('[STT] → controller set to "$combined"');
+            _lastResultWasNonEmpty = true;
+            setState(() => _controller.text = combined);
+          } else if (_lastResultWasNonEmpty) {
+            // Utterance selesai — simpan teks sekarang sebagai base utterance berikutnya
+            _textBeforeListen = _controller.text.trimRight();
+            _lastResultWasNonEmpty = false;
+            debugPrint('[STT] → utterance ended, new base="$_textBeforeListen"');
+          }
+        },
+        onDone: () {
+          debugPrint('[STT] onDone fired, controller="${_controller.text}"');
+          if (mounted) setState(() => _isListening = false);
+        },
+      );
+    } catch (e) {
+      debugPrint('[STT] ERROR: $e');
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          _voiceError = true;
+        });
+      }
+    }
+  }
+
+  void _submit() {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) Navigator.of(context).pop(text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = context.cs;
+    final tt = context.tt;
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewInsetsOf(context).bottom,
+        left: 20,
+        right: 20,
+        top: 8,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Icon(Icons.auto_awesome, color: cs.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Isi dengan AI',
+                style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Ceritakan transaksimu secara kasual',
+            style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  autofocus: true,
+                  maxLines: 3,
+                  minLines: 1,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _submit(),
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    hintText: 'cth: beli matcha 50rb dari bri',
+                    hintStyle: tt.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                    ),
+                    suffixIcon: _controller.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            tooltip: 'Hapus teks',
+                            onPressed: () => setState(() {
+                              _controller.clear();
+                              _textBeforeListen = '';
+                            }),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: _isListening ? cs.errorContainer : cs.secondaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    _isListening ? Icons.stop_rounded : Icons.mic_none_rounded,
+                    color: _isListening ? cs.onErrorContainer : cs.onSecondaryContainer,
+                  ),
+                  tooltip: _isListening ? 'Berhenti' : 'Bicara',
+                  onPressed: _toggleVoice,
+                ),
+              ),
+            ],
+          ),
+          if (_isListening) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: cs.error),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Sedang mendengarkan...',
+                  style: tt.bodySmall?.copyWith(color: cs.error),
+                ),
+              ],
+            ),
+          ],
+          if (_voiceError) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Speech recognition tidak tersedia. Ketik manual.',
+              style: tt.bodySmall?.copyWith(color: cs.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              'beli kopi 25rb',
+              'gajian 5jt ke mandiri',
+              'bayar listrik 150rb',
+            ]
+                .map(
+                  (hint) => ActionChip(
+                    label: Text(hint, style: tt.labelSmall),
+                    // Disable jika user sudah ngetik agar tidak overwrite teks
+                    onPressed: _controller.text.trim().isEmpty
+                        ? () => setState(() => _controller.text = hint)
+                        : null,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _controller.text.trim().isEmpty ? null : _submit,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Proses dengan AI'),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}

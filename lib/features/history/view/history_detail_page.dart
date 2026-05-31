@@ -44,9 +44,12 @@ class _HistoryDetailPageState extends State<HistoryDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final typeLabel = _item == null
+        ? 'Detail Transaksi'
+        : _item!.sign == '+' ? 'Detail Pemasukan' : 'Detail Pengeluaran';
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Transaksi'),
+        title: Text(typeLabel),
         actions: _item != null && _item!.type == 1
             ? [
                 IconButton(
@@ -79,48 +82,87 @@ class _HistoryDetailPageState extends State<HistoryDetailPage> {
     final item = _item!;
     final iconName = item.categoryIcon ?? 'ic_other';
     final bgColor = ColoredIcon.parseColor(item.categoryColor);
+    final accountBgColor = ColoredIcon.parseColor(item.accountColor);
+    final semanticColor = item.sign == '+' ? AppTheme.income : AppTheme.expense;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         children: [
-          // Icon + category + amount
-          Center(
+          // ── Hero Card ──────────────────────────────────────────────
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            decoration: BoxDecoration(
+              color: semanticColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Column(
               children: [
-                ColoredIcon(iconName: iconName, backgroundColor: bgColor, size: 64, iconSize: 36),
-                const SizedBox(height: 8),
+                ColoredIcon(
+                  iconName: iconName,
+                  backgroundColor: bgColor,
+                  size: 68,
+                  iconSize: 38,
+                ),
+                const SizedBox(height: 12),
                 Text(
                   item.categoryName ?? '-',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  style: context.tt.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: context.cs.onSurface,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 10),
                 AmountText(
                   amount: item.amount,
                   sign: item.sign,
                   type: item.type,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: context.tt.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Detail rows
-          _DetailCard(children: [
-            _DetailRow(label: 'REKENING', value: item.accountName ?? '-'),
-            const Divider(height: 1),
-            _DetailRow(
-              label: 'TANGGAL',
-              value: '${DateFormatter.formatDate(item.date)}  ${DateFormatter.formatTime(item.time)}',
+          const SizedBox(height: 12),
+          // ── Detail Card ────────────────────────────────────────────
+          Container(
+            decoration: BoxDecoration(
+              color: context.cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
             ),
-            if (item.note.trim().isNotEmpty) ...[
-              const Divider(height: 1),
-              _DetailRow(label: 'CATATAN', value: item.note),
-            ],
-          ]),
+            child: Column(
+              children: [
+                _IconDetailRow(
+                  leading: ColoredIcon(
+                    iconName: item.accountIcon ?? 'ic_other',
+                    backgroundColor: accountBgColor,
+                    size: 40,
+                    iconSize: 22,
+                  ),
+                  label: 'REKENING',
+                  value: item.accountName ?? '-',
+                ),
+                const _RowDivider(),
+                _IconDetailRow(
+                  leading: const _NeutralIcon(Icons.calendar_today_outlined),
+                  label: 'TANGGAL',
+                  value: '${DateFormatter.formatDate(item.date)},  ${DateFormatter.formatTime(item.time)}',
+                ),
+                if (item.note.trim().isNotEmpty) ...[
+                  const _RowDivider(),
+                  _IconDetailRow(
+                    leading: const _NeutralIcon(Icons.notes_rounded),
+                    label: 'CATATAN',
+                    value: item.note,
+                    italic: true,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -140,46 +182,82 @@ class _HistoryDetailPageState extends State<HistoryDetailPage> {
   }
 }
 
-class _DetailCard extends StatelessWidget {
-  final List<Widget> children;
-  const _DetailCard({required this.children});
+class _NeutralIcon extends StatelessWidget {
+  final IconData icon;
+  const _NeutralIcon(this.icon);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: context.cs.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(8),
+        color: context.cs.surfaceContainerHighest,
+        shape: BoxShape.circle,
       ),
-      child: Column(children: children),
+      child: Icon(icon, size: 20, color: context.cs.onSurfaceVariant),
     );
   }
 }
 
-class _DetailRow extends StatelessWidget {
+class _RowDivider extends StatelessWidget {
+  const _RowDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      indent: 70,
+      endIndent: 16,
+      color: context.cs.outlineVariant,
+    );
+  }
+}
+
+class _IconDetailRow extends StatelessWidget {
+  final Widget leading;
   final String label;
   final String value;
-  const _DetailRow({required this.label, required this.value});
+  final bool italic;
+  const _IconDetailRow({
+    required this.leading,
+    required this.label,
+    required this.value,
+    this.italic = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
+          leading,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: context.tt.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                    color: context.cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: context.tt.bodyMedium?.copyWith(
+                    color: context.cs.onSurface,
+                    fontWeight: FontWeight.w500,
+                    fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 15),
           ),
         ],
       ),

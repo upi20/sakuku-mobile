@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/currency_formatter.dart';
 
-/// Summary card shown at top of HistoryPage matching layout_summary_history
-/// from history_fragment.xml.
+/// Compact horizontal summary strip shown at top of HistoryPage.
+/// High-density design: In / Out / Net in a single row.
 class HistorySummaryCard extends StatelessWidget {
   final double income;
   final double expense;
@@ -19,31 +19,32 @@ class HistorySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: context.cs.surface,
-      ),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      color: context.cs.surfaceContainerLow,
+      child: Row(
         children: [
-          _SummaryRow(
-            label: 'Pemasukan',
-            amount: income,
-            amountColor: AppTheme.income,
+          Expanded(
+            child: _SummaryChip(
+              label: 'Masuk',
+              amount: income,
+              color: AppTheme.income,
+            ),
           ),
-          const SizedBox(height: 4),
-          _SummaryRow(
-            label: 'Pengeluaran',
-            amount: expense,
-            amountColor: AppTheme.expense,
+          Container(width: 1, height: 28, color: context.cs.outlineVariant),
+          Expanded(
+            child: _SummaryChip(
+              label: 'Keluar',
+              amount: expense,
+              color: AppTheme.expense,
+            ),
           ),
-          const SizedBox(height: 6),
-          const Divider(height: 1),
-          const SizedBox(height: 6),
-          _SummaryRow(
-            label: 'Total',
-            amount: total,
-            amountColor: AppTheme.balanced,
+          Container(width: 1, height: 28, color: context.cs.outlineVariant),
+          Expanded(
+            child: _SummaryChip(
+              label: 'Net',
+              amount: total,
+              color: AppTheme.balanced,
+            ),
           ),
         ],
       ),
@@ -51,31 +52,38 @@ class HistorySummaryCard extends StatelessWidget {
   }
 }
 
-class _SummaryRow extends StatelessWidget {
+class _SummaryChip extends StatelessWidget {
   final String label;
   final double amount;
-  final Color amountColor;
+  final Color color;
 
-  const _SummaryRow({
+  const _SummaryChip({
     required this.label,
     required this.amount,
-    required this.amountColor,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: context.cs.onSurface),
-        ),
-        Expanded(
-          child: Text(
-            CurrencyFormatter.format(amount),
-            textAlign: TextAlign.end,
-            style: TextStyle(fontSize: 14, color: amountColor),
+          style: context.tt.labelSmall?.copyWith(
+            color: context.cs.onSurfaceVariant,
           ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          CurrencyFormatter.formatCompact(amount),
+          style: context.tt.labelMedium?.copyWith(
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

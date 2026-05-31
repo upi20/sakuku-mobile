@@ -24,6 +24,21 @@ class HistoryTransactionRow extends HistoryListRow {
   HistoryTransactionRow(this.item);
 }
 
+/// Collapsed transfer pair (src + dest legs merged into one row).
+class HistoryTransferPairRow extends HistoryListRow {
+  final int transferId;
+  final double amount;
+  final String srcAccountName;
+  final String destAccountName;
+
+  HistoryTransferPairRow({
+    required this.transferId,
+    required this.amount,
+    required this.srcAccountName,
+    required this.destAccountName,
+  });
+}
+
 abstract class HistoryState {}
 
 class HistoryInitial extends HistoryState {}

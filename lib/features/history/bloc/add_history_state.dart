@@ -15,6 +15,9 @@ class AddHistoryReady extends AddHistoryState {
   final DateTime date;
   final TimeOfDay time;
   final int? editingId;
+  final bool isAiLoading;
+  /// true hanya pada emit terakhir dari _onAiRequested — untuk trigger TTS sekali.
+  final bool aiJustFilled;
 
   AddHistoryReady({
     required this.accounts,
@@ -27,6 +30,8 @@ class AddHistoryReady extends AddHistoryState {
     required this.date,
     required this.time,
     this.editingId,
+    this.isAiLoading = false,
+    this.aiJustFilled = false,
   });
 
   AddHistoryReady copyWith({
@@ -41,6 +46,8 @@ class AddHistoryReady extends AddHistoryState {
     DateTime? date,
     TimeOfDay? time,
     int? editingId,
+    bool? isAiLoading,
+    bool aiJustFilled = false, // selalu reset ke false kecuali AI yang set
   }) {
     return AddHistoryReady(
       accounts: accounts ?? this.accounts,
@@ -53,6 +60,8 @@ class AddHistoryReady extends AddHistoryState {
       date: date ?? this.date,
       time: time ?? this.time,
       editingId: editingId ?? this.editingId,
+      isAiLoading: isAiLoading ?? this.isAiLoading,
+      aiJustFilled: aiJustFilled,
     );
   }
 }

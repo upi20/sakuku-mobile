@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_router.dart';
 import 'core/constants/app_strings.dart';
 import 'core/database/daos/history_transfer_dao.dart';
+import 'core/services/quick_actions_service.dart';
 import 'core/repositories/interfaces/i_account_repository.dart';
 import 'core/repositories/interfaces/i_category_repository.dart';
 import 'core/repositories/interfaces/i_history_repository.dart';
@@ -23,6 +24,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final prefs = await SharedPreferences.getInstance();
+  // Wire up launcher long-press shortcut (Catat dengan AI).
+  await QuickActionsService.instance.bootstrap();
   runApp(DompetKuApp(prefs: prefs));
 }
 

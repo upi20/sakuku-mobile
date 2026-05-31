@@ -154,126 +154,170 @@ class _DebtListItem extends StatelessWidget {
     }
   }
 
+  String get _initial {
+    final n = debt.name.trim();
+    return n.isEmpty ? '?' : n[0].toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final paid = debt.paidAmount ?? 0;
-    final progress = debt.totalAmount > 0 ? (paid / debt.totalAmount).clamp(0.0, 1.0) : 0.0;
+    final progress =
+        debt.totalAmount > 0 ? (paid / debt.totalAmount).clamp(0.0, 1.0) : 0.0;
     final overdue = _isOverdue && !debt.isRelief;
+    final color = debt.type == 1 ? AppTheme.expense : AppTheme.income;
+    final endDate =
+        debt.endDateTime.isNotEmpty ? debt.endDateTime.substring(0, 10) : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.person_outline,
-                      size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      debt.name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: context.cs.onSurface),
+              // ── Circular progress ring + initial avatar ──
+              _ProgressRing(
+                progress: progress,
+                initial: _initial,
+                color: color,
+              ),
+              const SizedBox(width: 14),
+              // ── Main content ─────────────────────────────
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            debt.name,
+                            style: context.tt.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: context.cs.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (overdue) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.dueDate.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'Jatuh Tempo',
+                              style: context.tt.labelSmall?.copyWith(
+                                color: AppTheme.dueDate,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ),
-                  if (overdue)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                          color: AppTheme.dueDate.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
+                    if (debt.note.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        debt.note,
+                        style: context.tt.bodySmall?.copyWith(
+                          color: context.cs.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      child: Text('Jatuh Tempo',
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: AppTheme.dueDate,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                ],
-              ),
-              if (debt.note.isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(debt.note,
-                    style: TextStyle(
-                        fontSize: 12, color: context.cs.onSurfaceVariant)),
-              ],
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                    const SizedBox(height: 6),
+                    Row(
                       children: [
-                        const Text('TERBAYAR',
-                            style: TextStyle(fontSize: 10)),
-                        Text(CurrencyFormatter.format(paid),
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.income)),
+                        Expanded(
+                          child: Text(
+                            endDate != null
+                                ? 'J.T.: $endDate'
+                                : 'Tanpa jatuh tempo',
+                            style: context.tt.bodySmall?.copyWith(
+                              color: overdue
+                                  ? AppTheme.dueDate
+                                  : context.cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          'Sisa ${CurrencyFormatter.formatCompact(debt.remainingAmount)}',
+                          style: context.tt.labelMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text('TOTAL',
-                            style: TextStyle(fontSize: 10)),
-                        Text(CurrencyFormatter.format(debt.amount),
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: context.cs.onSurface)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 6,
-                  backgroundColor: context.cs.surfaceContainerHighest,
-                  valueColor: AlwaysStoppedAnimation(AppTheme.income),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    debt.endDateTime.isNotEmpty
-                        ? 'Jatuh tempo: ${debt.endDateTime.substring(0, 10)}'
-                        : 'Tanpa jatuh tempo',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: overdue ? AppTheme.dueDate : context.cs.onSurfaceVariant),
-                  ),
-                  Text(
-                    'Sisa: ${CurrencyFormatter.format(debt.remainingAmount)}',
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: context.cs.onSurface),
-                  ),
-                ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ProgressRing extends StatelessWidget {
+  final double progress;
+  final String initial;
+  final Color color;
+
+  const _ProgressRing({
+    required this.progress,
+    required this.initial,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 52,
+      height: 52,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 52,
+            height: 52,
+            child: CircularProgressIndicator(
+              value: progress,
+              strokeWidth: 4,
+              backgroundColor: context.cs.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation(color),
+              strokeCap: StrokeCap.round,
+            ),
+          ),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initial,
+              style: context.tt.titleSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -64,6 +64,14 @@ dependencies:
   shimmer: ^3.0.0
   flutter_colorpicker: ^1.1.0
 
+  # AI & Voice
+  google_generative_ai: ^0.4.7
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+
+  # Launcher integration
+  quick_actions: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
