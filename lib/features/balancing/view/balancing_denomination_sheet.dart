@@ -69,8 +69,12 @@ class _BalancingDenominationSheetState
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: SafeArea(
+        bottom: keyboardInset == 0, // biarkan SafeArea handle bottom saat keyboard tertutup
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Header
@@ -239,6 +243,7 @@ class _BalancingDenominationSheetState
             ),
           ),
         ],
+        ),
       ),
     );
   }

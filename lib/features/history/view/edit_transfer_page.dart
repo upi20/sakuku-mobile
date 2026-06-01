@@ -372,25 +372,27 @@ class _DateTimeSection extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          OutlinedButton.icon(
-            onPressed: () async {
-              final picked = await showTimePicker(
-                context: context,
-                initialTime: time,
-              );
-              if (picked != null && context.mounted) {
-                context
-                    .read<TransferBloc>()
-                    .add(TransferTimeChanged(picked));
-              }
-            },
-            icon: const Icon(Icons.access_time, size: 18),
-            label: Text(timeStr, style: const TextStyle(fontSize: 13)),
-            style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: time,
+                );
+                if (picked != null && context.mounted) {
+                  context
+                      .read<TransferBloc>()
+                      .add(TransferTimeChanged(picked));
+                }
+              },
+              icon: const Icon(Icons.access_time, size: 18),
+              label: Text(timeStr, style: const TextStyle(fontSize: 13)),
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
             ),
           ),
         ],

@@ -12,8 +12,8 @@ class HistoryRepository implements IHistoryRepository {
       _dao.getByMonth(yearMonth);
 
   @override
-  Future<List<HistoryModel>> getByDateRange(String start, String end) =>
-      _dao.getByDateRange(start, end);
+  Future<List<HistoryModel>> getByDateRange(String start, String end, {bool excludeTransfer = false}) =>
+      _dao.getByDateRange(start, end, excludeTransfer: excludeTransfer);
 
   @override
   Future<List<HistoryModel>> getByAccount(int accountId) =>
@@ -23,20 +23,22 @@ class HistoryRepository implements IHistoryRepository {
   Future<List<HistoryModel>> search(String query) => _dao.search(query);
 
   @override
-  Future<List<HistoryModel>> filter({
-    String? startDate,
-    String? endDate,
-    int? accountId,
-    int? categoryId,
-    String? sign,
-  }) =>
-      _dao.filter(
-        startDate: startDate,
-        endDate: endDate,
-        accountId: accountId,
-        categoryId: categoryId,
-        sign: sign,
-      );
+    Future<List<HistoryModel>> filter({
+        String? startDate,
+        String? endDate,
+        int? accountId,
+        int? categoryId,
+        String? sign,
+        bool excludeTransfer = false,
+    }) =>
+            _dao.filter(
+                startDate: startDate,
+                endDate: endDate,
+                accountId: accountId,
+                categoryId: categoryId,
+                sign: sign,
+                excludeTransfer: excludeTransfer,
+            );
 
   @override
   Future<HistoryModel?> getById(int id) => _dao.getById(id);

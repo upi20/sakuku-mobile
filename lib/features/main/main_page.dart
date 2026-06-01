@@ -44,6 +44,12 @@ class _MainPageState extends State<MainPage> {
 
   static const List<_TabItem> _tabs = [
     _TabItem(
+      label: 'Dashboard',
+      icon: Icons.grid_view_outlined,
+      selectedIcon: Icons.grid_view,
+      route: '/dashboard',
+    ),
+    _TabItem(
       label: 'Transaksi',
       icon: Icons.history_outlined,
       selectedIcon: Icons.history,
@@ -71,10 +77,11 @@ class _MainPageState extends State<MainPage> {
 
   int get _currentIndex {
     final location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith('/report')) return 1;
-    if (location.startsWith('/debt')) return 2;
-    if (location.startsWith('/settings')) return 3;
-    return 0;
+    if (location.startsWith('/history')) return 1;
+    if (location.startsWith('/report')) return 2;
+    if (location.startsWith('/debt')) return 3;
+    if (location.startsWith('/settings')) return 4;
+    return 0; // /dashboard
   }
 
   void _onTap(int index) {
@@ -83,7 +90,7 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _slidingForward = index > curr;
     });
-    if (index == 0) {
+    if (index == 1) {
       final bloc = context.read<HistoryBloc>();
       if (bloc.state is! HistoryInitial) {
         bloc.add(HistoryRefresh());
@@ -121,6 +128,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex;
+    final isDashboard = currentIndex == 0;
     return Scaffold(
       body: _SlidingBody(
         currentIndex: currentIndex,
@@ -129,19 +137,25 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButton: _isAiSheetOpen
           ? null
+          : isDashboard
+          ? FloatingActionButton(
+              heroTag: 'ai_fab_dashboard',
+              onPressed: _onAiFabTap,
+              tooltip: 'Input AI',
+              child: const Icon(Icons.auto_awesome, size: 30),
+            )
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (currentIndex == 0) ...
-                  [
-                    FloatingActionButton.small(
-                      heroTag: 'ai_fab',
-                      onPressed: _onAiFabTap,
-                      tooltip: 'Input AI',
-                      child: const Icon(Icons.auto_awesome),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                if (currentIndex == 1) ...[
+                  FloatingActionButton.small(
+                    heroTag: 'ai_fab',
+                    onPressed: _onAiFabTap,
+                    tooltip: 'Input AI',
+                    child: const Icon(Icons.auto_awesome),
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 FloatingActionButton(
                   heroTag: 'add_fab',
                   onPressed: _onFabTap,
@@ -150,18 +164,22 @@ class _MainPageState extends State<MainPage> {
               ],
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: _onTap,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: _tabs
-            .map((t) => NavigationDestination(
-                  icon: Icon(t.icon),
-                  selectedIcon: Icon(t.selectedIcon),
-                  label: t.label,
-                ))
-            .toList(),
-      ),
+      bottomNavigationBar: isDashboard
+          ? null
+          : NavigationBar(
+              selectedIndex: currentIndex,
+              onDestinationSelected: _onTap,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+              destinations: _tabs
+                  .map(
+                    (t) => NavigationDestination(
+                      icon: Icon(t.icon),
+                      selectedIcon: Icon(t.selectedIcon),
+                      label: t.label,
+                    ),
+                  )
+                  .toList(),
+            ),
     );
   }
 }
@@ -188,26 +206,20 @@ class _SlidingBody extends StatelessWidget {
             ? const Offset(0.25, 0)
             : const Offset(-0.25, 0);
         return FadeTransition(
-          opacity: CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOut,
-          ),
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
           child: SlideTransition(
-            position: Tween<Offset>(
-              begin: enterOffset,
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
+            position: Tween<Offset>(begin: enterOffset, end: Offset.zero)
+                .animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
             child: child,
           ),
         );
       },
-      child: KeyedSubtree(
-        key: ValueKey(currentIndex),
-        child: child,
-      ),
+      child: KeyedSubtree(key: ValueKey(currentIndex), child: child),
     );
   }
 }
@@ -263,8 +275,11 @@ class _AddActionSheet extends StatelessWidget {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: cs.primaryContainer,
-                child: Icon(Icons.receipt_long,
-                    color: cs.onPrimaryContainer, size: 20),
+                child: Icon(
+                  Icons.receipt_long,
+                  color: cs.onPrimaryContainer,
+                  size: 20,
+                ),
               ),
               title: Text(AppStrings.addTransaction),
               subtitle: const Text('Catat pemasukan atau pengeluaran'),
@@ -273,8 +288,11 @@ class _AddActionSheet extends StatelessWidget {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: cs.secondaryContainer,
-                child: Icon(Icons.swap_horiz,
-                    color: cs.onSecondaryContainer, size: 20),
+                child: Icon(
+                  Icons.swap_horiz,
+                  color: cs.onSecondaryContainer,
+                  size: 20,
+                ),
               ),
               title: const Text('Transfer Saldo'),
               subtitle: const Text('Pindahkan saldo antar rekening'),
@@ -283,8 +301,11 @@ class _AddActionSheet extends StatelessWidget {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: cs.tertiaryContainer,
-                child: Icon(Icons.credit_card,
-                    color: cs.onTertiaryContainer, size: 20),
+                child: Icon(
+                  Icons.credit_card,
+                  color: cs.onTertiaryContainer,
+                  size: 20,
+                ),
               ),
               title: const Text('Hutang / Piutang'),
               subtitle: const Text('Catat hutang atau piutang'),

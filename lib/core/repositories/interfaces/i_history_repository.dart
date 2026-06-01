@@ -2,7 +2,7 @@ import '../../models/history_model.dart';
 
 abstract class IHistoryRepository {
   Future<List<HistoryModel>> getByMonth(String yearMonth);
-  Future<List<HistoryModel>> getByDateRange(String start, String end);
+  Future<List<HistoryModel>> getByDateRange(String start, String end, {bool excludeTransfer = false});
   Future<List<HistoryModel>> getByAccount(int accountId);
   Future<List<HistoryModel>> search(String query);
   Future<List<HistoryModel>> filter({
@@ -11,6 +11,7 @@ abstract class IHistoryRepository {
     int? accountId,
     int? categoryId,
     String? sign,
+    bool excludeTransfer = false,
   });
   Future<HistoryModel?> getById(int id);
   Future<Map<String, double>> getSummaryByMonth(String yearMonth);

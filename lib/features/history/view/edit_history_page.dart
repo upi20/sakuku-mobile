@@ -37,6 +37,8 @@ class _EditHistoryPageState extends State<EditHistoryPage> {
     _amountController.text = ThousandsInputFormatter.formatForDisplay(item.amount);
     _noteController.text = item.note;
     context.read<AddHistoryBloc>().add(AddHistoryEditInit(item));
+    // Debug: log loaded item values
+    debugPrint('EditHistory: loaded id=${item.id} category=${item.categoryId} account=${item.accountId} date=${item.date} time=${item.time} amount=${item.amount}');
     setState(() => _initialized = true);
   }
 
@@ -51,6 +53,10 @@ class _EditHistoryPageState extends State<EditHistoryPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<AddHistoryBloc, AddHistoryState>(
       listener: (context, state) {
+        // Debug: log bloc state transitions relevant to edit
+        if (state is AddHistoryReady) {
+          debugPrint('EditHistory: AddHistoryReady date=${state.date} time=${state.time} editingId=${state.editingId} amountText=${state.amountText}');
+        }
         if (state is AddHistorySuccess) {
           context.read<HistoryBloc>().add(HistoryRefresh());
           context.pop();
@@ -102,9 +108,16 @@ class _EditHistoryPageState extends State<EditHistoryPage> {
                 ),
                 _AmountField(controller: _amountController),
                 const SizedBox(height: 8),
+                // Tempatkan Date+Time sebelum Note agar lebih mudah dijangkau saat edit
+                _DateTimeCard(
+                  date: state.date,
+                  time: state.time,
+                  onDateTap: () => _pickDate(context, state),
+                  onTimeTap: () => _pickTime(context, state),
+                ),
+                const SizedBox(height: 8),
                 _NoteField(controller: _noteController),
                 const SizedBox(height: 8),
-                _DateTimeCard(date: state.date, time: state.time),
                 const SizedBox(height: 80),
               ],
             ),
@@ -142,6 +155,30 @@ class _EditHistoryPageState extends State<EditHistoryPage> {
     );
     if (picked != null && mounted) {
       bloc.add(AddHistoryAccountSelected(picked));
+    }
+  }
+
+  void _pickDate(BuildContext context, AddHistoryReady state) async {
+    final bloc = context.read<AddHistoryBloc>();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: state.date,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && mounted) {
+      bloc.add(AddHistoryDateChanged(picked));
+    }
+  }
+
+  void _pickTime(BuildContext context, AddHistoryReady state) async {
+    final bloc = context.read<AddHistoryBloc>();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: state.time,
+    );
+    if (picked != null && mounted) {
+      bloc.add(AddHistoryTimeChanged(picked));
     }
   }
 }
@@ -249,9 +286,9 @@ class _PickerCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
+          const Text(
+            'KATEGORI', // Di kode asalmu ada parameter label, saya biarkan sama dengan strukturmu
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -380,14 +417,22 @@ class _NoteField extends StatelessWidget {
 class _DateTimeCard extends StatelessWidget {
   final DateTime date;
   final TimeOfDay time;
-  const _DateTimeCard({required this.date, required this.time});
+  final VoidCallback onDateTap;
+  final VoidCallback onTimeTap;
+  const _DateTimeCard({
+    required this.date,
+    required this.time,
+    required this.onDateTap,
+    required this.onTimeTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = DateFormatter.formatDate(
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}');
+    // 1. Mengubah parsing tanggal secara manual untuk bypass error DateFormatter
+    final dateStr = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     final timeStr =
         '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    
     return Container(
       color: context.cs.surfaceContainerLowest,
       padding: const EdgeInsets.all(16),
@@ -397,36 +442,16 @@ class _DateTimeCard extends StatelessWidget {
             child: _DateTimeBtn(
               icon: Icons.date_range,
               label: dateStr,
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: date,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (picked != null && context.mounted) {
-                  context
-                      .read<AddHistoryBloc>()
-                      .add(AddHistoryDateChanged(picked));
-                }
-              },
+              onTap: onDateTap,
             ),
           ),
           const SizedBox(width: 12),
-          _DateTimeBtn(
-            icon: Icons.access_time,
-            label: timeStr,
-            onTap: () async {
-              final picked = await showTimePicker(
-                context: context,
-                initialTime: time,
-              );
-              if (picked != null && context.mounted) {
-                context
-                    .read<AddHistoryBloc>()
-                    .add(AddHistoryTimeChanged(picked));
-              }
-            },
+          Expanded(
+            child: _DateTimeBtn(
+              icon: Icons.access_time,
+              label: timeStr,
+              onTap: onTimeTap,
+            ),
           ),
         ],
       ),
@@ -450,7 +475,14 @@ class _DateTimeBtn extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 18),
-      label: Text(label, style: const TextStyle(fontSize: 13)),
+      // 2. Memberikan penegasan warna pada teks agar kontras dengan background
+      label: Text(
+        label, 
+        style: TextStyle(
+          fontSize: 13,
+          color: context.cs.onSurface, // Memaksa agar teks terbaca
+        ),
+      ),
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

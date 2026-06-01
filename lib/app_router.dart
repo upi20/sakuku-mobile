@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'core/utils/pin_service.dart';
 import 'features/splash/splash_page.dart';
 import 'features/main/main_page.dart';
+import 'features/dashboard/view/dashboard_page.dart';
 import 'features/pin/view/check_pin_page.dart';
 import 'features/pin/view/set_pin_page.dart';
 import 'features/pin/view/config_pin_page.dart';
@@ -95,6 +96,11 @@ final appRouter = GoRouter(
       builder: (context, state, child) => MainPage(child: child),
       routes: [
         GoRoute(
+          path: '/dashboard',
+          name: 'dashboard',
+          builder: (_, _) => const DashboardPage(),
+        ),
+        GoRoute(
           path: '/history',
           name: 'history',
           builder: (_, _) => const HistoryPage(),
@@ -112,7 +118,10 @@ final appRouter = GoRouter(
             final endDate = state.uri.queryParameters['endDate'] ?? '';
             final sign = state.uri.queryParameters['sign'] ?? '-';
             return ReportByCategoryPage(
-                startDate: startDate, endDate: endDate, sign: sign);
+              startDate: startDate,
+              endDate: endDate,
+              sign: sign,
+            );
           },
         ),
         GoRoute(
@@ -122,8 +131,9 @@ final appRouter = GoRouter(
             final startDate = state.uri.queryParameters['startDate'] ?? '';
             final endDate = state.uri.queryParameters['endDate'] ?? '';
             final categoryIdStr = state.uri.queryParameters['categoryId'];
-            final categoryId =
-                categoryIdStr != null ? int.tryParse(categoryIdStr) : null;
+            final categoryId = categoryIdStr != null
+                ? int.tryParse(categoryIdStr)
+                : null;
             final categoryName = state.uri.queryParameters['categoryName'];
             final sign = state.uri.queryParameters['sign'];
             return ReportAsListPage(
@@ -214,9 +224,7 @@ final appRouter = GoRouter(
       name: 'debt-add',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final type = int.tryParse(
-          state.uri.queryParameters['type'] ?? '1',
-        );
+        final type = int.tryParse(state.uri.queryParameters['type'] ?? '1');
         return AddDebtPage(debtType: type);
       },
     ),

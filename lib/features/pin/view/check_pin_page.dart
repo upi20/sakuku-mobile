@@ -14,10 +14,7 @@ class CheckPinPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PinBloc(),
-      child: const _CheckPinBody(),
-    );
+    return BlocProvider(create: (_) => PinBloc(), child: const _CheckPinBody());
   }
 }
 
@@ -49,7 +46,7 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
       _tapCount = 0;
       _firstTapTime = null;
       PinService.instance.unlockSession();
-      context.go('/history');
+      context.go('/dashboard');
     }
   }
 
@@ -83,7 +80,7 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
     return BlocListener<PinBloc, PinState>(
       listener: (context, state) {
         if (state is PinCheckSuccess) {
-          context.go('/history');
+          context.go('/dashboard');
         } else if (state is PinCheckFailure) {
           _reset(shake: true);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +100,11 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
             children: [
               GestureDetector(
                 onTap: _onLogoTap,
-                child: Icon(Icons.lock_outline, color: context.cs.onPrimary, size: 48),
+                child: Icon(
+                  Icons.lock_outline,
+                  color: context.cs.onPrimary,
+                  size: 48,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -134,7 +135,10 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
                         color: filled
                             ? context.cs.onPrimary
                             : context.cs.onPrimary.withValues(alpha: 0.3),
-                        border: Border.all(color: context.cs.onPrimary, width: 2),
+                        border: Border.all(
+                          color: context.cs.onPrimary,
+                          width: 2,
+                        ),
                       ),
                     );
                   }),
@@ -149,4 +153,3 @@ class _CheckPinBodyState extends State<_CheckPinBody> {
     );
   }
 }
-

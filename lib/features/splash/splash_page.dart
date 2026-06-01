@@ -35,7 +35,7 @@ class _SplashPageState extends State<SplashPage> {
     if (pinEnabled) {
       context.go('/pin/check');
     } else {
-      context.go('/history');
+      context.go('/dashboard');
     }
   }
 

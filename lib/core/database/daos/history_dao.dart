@@ -24,10 +24,11 @@ class HistoryDao {
   }
 
   Future<List<HistoryModel>> getByDateRange(
-      String startDate, String endDate) async {
+      String startDate, String endDate, {bool excludeTransfer = false}) async {
     final db = await _db.database;
+    final whereExtra = excludeTransfer ? ' AND h.history_category_id NOT IN (1,2)' : '';
     final maps = await db.rawQuery(
-      '$_joinQuery WHERE h.history_date >= ? AND h.history_date <= ? ORDER BY h.history_date_time DESC',
+      '$_joinQuery WHERE h.history_date >= ? AND h.history_date <= ?$whereExtra ORDER BY h.history_date_time DESC',
       [startDate, endDate],
     );
     return maps.map(HistoryModel.fromMap).toList();
@@ -57,6 +58,7 @@ class HistoryDao {
     int? accountId,
     int? categoryId,
     String? sign,
+    bool excludeTransfer = false,
   }) async {
     final db = await _db.database;
     final conditions = <String>[];
@@ -81,6 +83,9 @@ class HistoryDao {
     if (sign != null) {
       conditions.add('h.history_sign = ?');
       args.add(sign);
+    }
+    if (excludeTransfer) {
+      conditions.add('h.history_category_id NOT IN (1,2)');
     }
 
     final where =
